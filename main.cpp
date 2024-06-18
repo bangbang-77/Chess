@@ -1,5 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
+
+#include "board.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +16,10 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
+
+    Board chessBoard;
+    engine.rootContext()->setContextProperty("chessBoard", &chessBoard);
+
     engine.load(url);
 
     return app.exec();

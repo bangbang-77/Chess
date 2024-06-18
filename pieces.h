@@ -15,7 +15,7 @@ public:
         bishop, // 象
         pawn    // 兵
     };
-    Pieces(int x, int y, const Color color, const QString &name, const int index);
+    Pieces(int x, int y, const Color color, const int id);
 
     virtual ~Pieces();
 
@@ -33,6 +33,8 @@ public:
 
     const QString &name();
 
+    virtual PieceType type() const = 0;
+
 private:
     int m_x;
     int m_y;
@@ -45,46 +47,58 @@ private:
 class Pawn : public Pieces
 {
 public:
-    Pawn(int x, int y, const Color color, const QString &name, const int index);
+    Pawn(int x, int y, const Color color, const int id);
     virtual ~Pawn();
+
+    PieceType type() const override;
 };
 
 // 象
 class Bishop : public Pieces
 {
 public:
-    Bishop(int x, int y, const Color color, const QString &name, const int index);
+    Bishop(int x, int y, const Color color, const int id);
     virtual ~Bishop();
+
+    PieceType type() const override;
 };
 
 // 马
 class Knight : public Pieces
 {
 public:
-    Knight(int x, int y, const Color color, const QString &name, const int index);
+    Knight(int x, int y, const Color color, const int id);
     virtual ~Knight();
+
+    PieceType type() const override;
 };
 
 // 车
 class Rook : public Pieces
 {
 public:
-    Rook(int x, int y, const Color color, const QString &name, const int index);
+    Rook(int x, int y, const Color color, const int id);
     virtual ~Rook();
+
+    PieceType type() const override;
 };
 
 // 后
 class Queen : public Pieces
 {
 public:
-    Queen(int x, int y, const Color color, const QString &name, const int index);
+    Queen(int x, int y, const Color color, const int id);
     virtual ~Queen();
+
+    PieceType type() const override;
 };
 
 // 王
 class King : public Pieces
 {
 public:
-    King(int x, int y, const Color color, const QString &name, const int index);
+    King(int x, int y, const Color color, const int id);
     virtual ~King();
+
+    PieceType type() const override;
 };

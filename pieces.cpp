@@ -1,11 +1,10 @@
 #include "pieces.h"
 
-Pieces::Pieces(int x, int y, Color color, const QString &name, int index)
+Pieces::Pieces(int x, int y, Color color, int id)
     : m_x(x)
     , m_y(y)
     , m_color(color)
-    , m_name(name)
-    , m_index(index)
+    , m_index(id)
 {}
 
 Pieces::~Pieces() {}
@@ -47,38 +46,68 @@ const QString &Pieces::name()
     return m_name;
 }
 
-Pawn::Pawn(int x, int y, const Color color, const QString &name, const int index)
-    : Pieces(x, y, color, name, index)
+Pawn::Pawn(int x, int y, const Color color, const int id)
+    : Pieces(x, y, color, id)
 {}
 
 Pawn::~Pawn() {}
 
-Bishop::Bishop(int x, int y, const Color color, const QString &name, const int index)
-    : Pieces(x, y, color, name, index)
+Pawn::PieceType Pawn::type() const
+{
+    return pawn;
+}
+
+Bishop::Bishop(int x, int y, const Color color, const int id)
+    : Pieces(x, y, color, id)
 {}
 
 Bishop::~Bishop() {}
 
-Knight::Knight(int x, int y, const Color color, const QString &name, const int index)
-    : Pieces(x, y, color, name, index)
+Bishop::PieceType Bishop::type() const
+{
+    return bishop;
+}
+
+Knight::Knight(int x, int y, const Color color, const int id)
+    : Pieces(x, y, color, id)
 {}
 
 Knight::~Knight() {}
 
-Rook::Rook(int x, int y, const Color color, const QString &name, const int index)
-    : Pieces(x, y, color, name, index)
+Knight::PieceType Knight::type() const
+{
+    return knight;
+}
+
+Rook::Rook(int x, int y, const Color color, const int id)
+    : Pieces(x, y, color, id)
 {}
 
 Rook::~Rook() {}
 
-Queen::Queen(int x, int y, const Color color, const QString &name, const int index)
-    : Pieces(x, y, color, name, index)
+Rook::PieceType Rook::type() const
+{
+    return rook;
+}
+
+Queen::Queen(int x, int y, const Color color, const int id)
+    : Pieces(x, y, color, id)
 {}
 
 Queen::~Queen() {}
 
-King::King(int x, int y, const Color color, const QString &name, const int index)
-    : Pieces(x, y, color, name, index)
+Queen::PieceType Queen::type() const
+{
+    return queen;
+}
+
+King::King(int x, int y, const Color color, const int id)
+    : Pieces(x, y, color, id)
 {}
 
 King::~King() {}
+
+King::PieceType King::type() const
+{
+    return king;
+}
