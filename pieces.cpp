@@ -4,15 +4,16 @@ Pieces::Pieces(int x, int y, Color color, int id)
     : m_x(x)
     , m_y(y)
     , m_color(color)
-    , m_index(id)
+    , m_id(id)
+    , firstMove(true)
 {}
 
 Pieces::~Pieces() {}
 
 //返回棋子的索引
-const int Pieces::index()
+const int Pieces::id()
 {
-    return m_index;
+    return m_id;
 }
 
 //返回棋子的x坐标
@@ -46,6 +47,16 @@ const QString &Pieces::name()
     return m_name;
 }
 
+bool Pieces::isFirstMove()
+{
+    return firstMove;
+}
+
+void Pieces::setFirstMove()
+{
+    firstMove = false;
+}
+
 Pawn::Pawn(int x, int y, const Color color, const int id)
     : Pieces(x, y, color, id)
 {}
@@ -55,6 +66,16 @@ Pawn::~Pawn() {}
 Pawn::PieceType Pawn::type() const
 {
     return pawn;
+}
+
+bool Pawn::isFirstMove()
+{
+    return firstMove;
+}
+
+void Pawn::setFirstMove()
+{
+    firstMove = true;
 }
 
 Bishop::Bishop(int x, int y, const Color color, const int id)

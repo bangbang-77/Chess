@@ -2,8 +2,9 @@
 
 #include <QAbstractListModel>
 #include <QObject>
-#include <QPainter>
+#include <QSharedPointer>
 
+#include "chess.h"
 #include "pieces.h"
 
 class Board : public QAbstractListModel
@@ -22,6 +23,10 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    // 移动
+    Q_INVOKABLE void move(int fromX, int fromY, int toX, int toY);
+    Q_INVOKABLE QVector<int> possibleMoves(int x, int y);
 
 private:
     QVector<QSharedPointer<Pieces>> m_pieces;

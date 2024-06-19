@@ -120,3 +120,608 @@ QHash<int, QByteArray> Board::roleNames() const
     roles[PieceImgRole] = "pieceImg";
     return roles;
 }
+
+void Board::move(int fromX, int fromY, int toX, int toY)
+{
+    QSharedPointer<Pieces> p, tmp;
+
+    for (int i = 0; i < m_pieces.length(); ++i) {
+        p = m_pieces[i];
+        if (p->x() == fromX && p->y() == fromY) {
+            break; // 找到当前棋子
+        }
+    }
+
+    for (int i = 0; i < m_pieces.length(); ++i) {
+        tmp = m_pieces[i];
+        // 选中的位置没有棋子
+        if (!(tmp->x() == toX && tmp->y() == toY)) {
+            // ...
+            break;
+        }
+
+        // 选中的位置有敌方棋子
+        if (tmp->x() == toX && tmp->y() == toY && tmp->color() != m_pieces[i]->color()) {
+            // ...
+            break;
+        }
+    }
+
+    p->setX(toX);
+    p->setY(toY);
+
+    // createIndex创建并返回一个 QModelIndex 对象，该对象指向模型中移动后的位置
+    QModelIndex newIndex = createIndex(toY * 8 + toX, 0);
+
+    // dataChanged是QAbstractItemModel的一个信号，通知界面更新棋子的位置
+    // 两个参数都是toIndex，意味着只通知了一个数据项的改变，用于单个数据项的更新
+    emit dataChanged(newIndex, newIndex);
+}
+
+QVector<int> Board::possibleMoves(int x, int y)
+{
+    QSharedPointer<Pieces> p;
+    for (int i = 0; i < m_pieces.length(); ++i) {
+        p = m_pieces[i];
+        if (p->x() == x && p->y() == y) {
+            break; // 找到当前棋子
+        }
+    }
+
+    switch (p->type()) {
+    case Pieces::pawn: {
+        QVector<int> moveList;
+        QSharedPointer<Pieces> tmp;
+        bool isEmpty;
+
+        // 白子上移（y减少），黑子下移（y增加）
+        int offset = p->color() == Pieces::Color::White ? -1 : 1;
+
+        Pawn *newPawn = new Pawn{p->x(), p->y() + 1 * offset, p->color(), p->id()};
+        if (newPawn->y() < 8 && newPawn->y() >= 0) {
+            int pos = newPawn->y() * 8 + newPawn->x();
+            if (newPawn->y() == 0 || newPawn->y() == 7) {
+                moveList.append(pos); // 晋升(兵升变)
+            } else {
+                moveList.append(pos); // 移动
+            }
+
+            //第一次移动可以再 + 1 * offset
+            isEmpty = true;
+            newPawn->setY(newPawn->y() + 1 * offset);
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == newPawn->x() && tmp->y() == newPawn->y()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+            pos = newPawn->y() * 8 + newPawn->x();
+            if (p->isFirstMove() && isEmpty) {
+                moveList.append(pos); // 移动
+                // p->setFirstMove();
+            }
+        }
+
+        // 吃子(斜着)
+        // 右上/右下
+        isEmpty = true;
+        newPawn = new Pawn{p->x() + 1, p->y() + 1 * offset, p->color(), p->id()};
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            tmp = m_pieces[i];
+            if (tmp->x() == newPawn->x() && tmp->y() == newPawn->y()) {
+                isEmpty = false;
+                break; // 找到棋子, 说明当前x,y位置不为空
+            }
+            tmp = nullptr;
+        }
+        int pos = newPawn->y() * 8 + newPawn->x();
+        if (newPawn->y() < 8 && newPawn->y() >= 0 && newPawn->x() < 8 && !isEmpty
+            && tmp->color() != p->color()) {
+            moveList.append(pos); // 吃子
+        }
+
+        // 左上/左下
+        isEmpty = true;
+        newPawn = new Pawn{p->x() - 1, p->y() + 1 * offset, p->color(), p->id()};
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            tmp = m_pieces[i];
+            if (tmp->x() == newPawn->x() && tmp->y() == newPawn->y()) {
+                isEmpty = false;
+                break; // 找到棋子, 说明当前x,y位置不为空
+            }
+            tmp = nullptr;
+        }
+        pos = newPawn->y() * 8 + newPawn->x();
+        if (newPawn->y() < 8 && newPawn->y() >= 0 && newPawn->x() >= 0 && !isEmpty
+            && p->color() != p->color()) {
+            moveList.append(pos); // 吃子
+        }
+
+        // 吃过路兵
+        // ...
+
+        return moveList;
+    }
+    case Pieces::bishop: {
+        QVector<int> moveList;
+        QSharedPointer<Pieces> tmp;
+        bool isEmpty;
+
+        // 左上
+        for (int x = p->x() - 1, y = p->y() - 1; x >= 0 && y >= 0; x--, y--) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 右上
+        for (int x = p->x() + 1, y = p->y() - 1; x < 8 && y >= 0; x++, y--) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到当前棋子, 说明当前x,y不为空, tmp != nullptr
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 右下
+        for (int x = p->x() + 1, y = p->y() + 1; x < 8 && y < 8; x++, y++) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到当前棋子, 说明当前x,y不为空, tmp != nullptr
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 左下
+        for (int x = p->x() - 1, y = p->y() + 1; x >= 0 && y < 8; x--, y++) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到当前棋子, 说明当前x,y不为空, tmp != nullptr
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+        return moveList;
+    }
+    case Pieces::knight: {
+        QVector<int> moveList;
+        QSharedPointer<Pieces> tmp;
+        bool isEmpty;
+
+        // 马能走八个位置（两格拐一格）   变化量：{x, y}
+        int offsets[8][2] = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
+
+        for (int i = 0; i < 8; i++) {
+            int x = p->x() + offsets[i][0];
+            int y = p->y() + offsets[i][1];
+
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+                if (isEmpty) {
+                    moveList.append(pos); // 移动
+                } else if (tmp->color() != p->color()) {
+                    moveList.append(pos); // 吃子
+                }
+            }
+        }
+
+        return moveList;
+    }
+    case Pieces::rook: {
+        QVector<int> moveList;
+        QSharedPointer<Pieces> tmp;
+        bool isEmpty;
+
+        // 向上移动
+        for (int i = p->y() - 1; i >= 0; i--) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == p->x() && tmp->y() == i) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = i * 8 + p->x();
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向下移动
+        for (int i = p->y() + 1; i < 8; i++) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == p->x() && tmp->y() == i) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = i * 8 + p->x();
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向左移动
+        for (int i = p->x() - 1; i >= 0; i--) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == i && tmp->y() == p->y()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = p->y() * 8 + i;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向右移动
+        for (int i = p->x() + 1; i < 8; i++) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == i && tmp->y() == p->y()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = i * 8 + p->y();
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        return moveList;
+    }
+    case Pieces::queen: {
+        QVector<int> moveList;
+        QSharedPointer<Pieces> tmp;
+        bool isEmpty;
+
+        // 直着走，上下左右
+        // 向上移动
+        for (int i = p->y() - 1; i >= 0; i--) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == p->x() && tmp->y() == i) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = i * 8 + p->x();
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向下移动
+        for (int i = p->y() + 1; i < 8; i++) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == p->x() && tmp->y() == i) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = i * 8 + p->x();
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向左移动
+        for (int i = p->x() - 1; i >= 0; i--) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == i && tmp->y() == p->y()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = p->y() * 8 + i;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向右移动
+        for (int i = p->x() + 1; i < 8; i++) {
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == i && tmp->y() == p->y()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = p->y() * 8 + i;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 斜着走，
+        // 左上--、右上+-、右下++、左下-+
+
+        // 向左上移动
+        for (int x = p->x() - 1, y = p->y() - 1; x >= 0 && y >= 0; x--, y--) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向右上移动
+        for (int x = p->x() + 1, y = p->y() - 1; x < 8 && y >= 0; x++, y--) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向左下移动
+        for (int x = p->x() + 1, y = p->y() + 1; x < 8 && y < 8; x++, y++) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        // 向右下移动
+        for (int x = p->x() - 1, y = p->y() + 1; x >= 0 && y < 8; x--, y++) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+
+            int pos = y * 8 + x;
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+                break;
+            } else {
+                // isEmpty == false && tmp->color() == p->color()    同色
+                break;
+            }
+        }
+
+        return moveList;
+    }
+    case Pieces::king: {
+        QVector<int> moveList;
+        QSharedPointer<Pieces> tmp;
+        bool isEmpty;
+
+        // 王走八个位置（“米”字型，一次只能走一格）   变化量：{x, y}
+        int offsets[8][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
+
+        for (int i = 0; i < 8; i++) {
+            int x = p->x() + offsets[i][0];
+            int y = p->y() + offsets[i][1];
+
+            isEmpty = true;
+            for (int j = 0; j < m_pieces.length(); ++j) {
+                tmp = m_pieces[j];
+                if (tmp->x() == x && tmp->y() == y) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+            int pos = y * 8 + x;
+            if ((x < 0) || (x > 7) || (y < 0) || (y > 7)) {
+                continue; // 超出棋盘, 退出当前循环，直接进行下一次循环
+            }
+            if (isEmpty) {
+                moveList.append(pos); // 移动
+            } else if (tmp->color() != p->color()) {
+                moveList.append(pos); // 吃子
+            }
+        }
+
+        // 王车易位
+        // ...
+    }
+    default:
+        return {};
+    }
+}

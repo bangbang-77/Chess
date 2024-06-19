@@ -15,11 +15,12 @@ public:
         bishop, // 象
         pawn    // 兵
     };
+
     Pieces(int x, int y, const Color color, const int id);
 
     virtual ~Pieces();
 
-    const int index();
+    const int id();
 
     int x();
 
@@ -35,12 +36,17 @@ public:
 
     virtual PieceType type() const = 0;
 
+    bool isFirstMove();
+
+    void setFirstMove();
+
 private:
     int m_x;
     int m_y;
     Color m_color;
     QString m_name;
-    int m_index;
+    int m_id;
+    bool firstMove = true;
 };
 
 // 兵
@@ -51,6 +57,13 @@ public:
     virtual ~Pawn();
 
     PieceType type() const override;
+
+    bool isFirstMove();
+
+    void setFirstMove();
+
+private:
+    bool firstMove = true;
 };
 
 // 象
