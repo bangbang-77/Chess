@@ -41,11 +41,6 @@ const Pieces::Color Pieces::color()
 {
     return m_color;
 }
-//返回棋子的名字
-const QString &Pieces::name()
-{
-    return m_name;
-}
 
 bool Pieces::isFirstMove()
 {
@@ -66,16 +61,6 @@ Pawn::~Pawn() {}
 Pawn::PieceType Pawn::type() const
 {
     return pawn;
-}
-
-bool Pawn::isFirstMove()
-{
-    return firstMove;
-}
-
-void Pawn::setFirstMove()
-{
-    firstMove = true;
 }
 
 Bishop::Bishop(int x, int y, const Color color, const int id)

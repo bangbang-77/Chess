@@ -4,19 +4,22 @@
 #include <QObject>
 #include <QSharedPointer>
 
-#include "chess.h"
 #include "pieces.h"
 
 class Board : public QAbstractListModel
 {
     Q_OBJECT
 public:
+    enum Role { PieceImgRole = Qt::UserRole };
+    enum Player { WhitePlayer, BlackPlayer };
+
     Board();
     virtual ~Board();
 
-    enum Role { PieceImgRole = Qt::UserRole };
+    // 判断黑白方
+    Player colortoPlayer(Pieces::Color color);
 
-    //初始化棋子
+    // 初始化棋子
     QVector<QSharedPointer<Pieces>> initPieces();
 
     // QAbstractListModel的虚函数，用于提供模型数据
@@ -30,4 +33,6 @@ public:
 
 private:
     QVector<QSharedPointer<Pieces>> m_pieces;
+
+    Player turn;
 };

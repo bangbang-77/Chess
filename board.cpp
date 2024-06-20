@@ -2,9 +2,20 @@
 
 Board::Board()
     : m_pieces(initPieces())
+    , turn(WhitePlayer)
 {}
 
 Board::~Board() {}
+
+Board::Player Board::colortoPlayer(Pieces::Color color)
+{
+    switch (color) {
+    case Pieces::White:
+        return WhitePlayer;
+    case Pieces::Black:
+        return BlackPlayer;
+    }
+}
 
 QVector<QSharedPointer<Pieces>> Board::initPieces()
 {
@@ -124,6 +135,7 @@ QHash<int, QByteArray> Board::roleNames() const
 void Board::move(int fromX, int fromY, int toX, int toY)
 {
     QSharedPointer<Pieces> p, tmp;
+    bool isEmpty = true;
 
     for (int i = 0; i < m_pieces.length(); ++i) {
         p = m_pieces[i];
@@ -132,30 +144,54 @@ void Board::move(int fromX, int fromY, int toX, int toY)
         }
     }
 
+    if (turn != colortoPlayer(p->color())) {
+        return;
+    }
+
     for (int i = 0; i < m_pieces.length(); ++i) {
         tmp = m_pieces[i];
-        // 选中的位置没有棋子
-        if (!(tmp->x() == toX && tmp->y() == toY)) {
-            // ...
-            break;
+        if (tmp->x() == toX && tmp->y() == toY) {
+            isEmpty = false;
+            break; // 找到当前棋子
         }
+        tmp = nullptr;
+    }
 
+    if (isEmpty) {
+        // 选中的位置没有棋子
+        // 设置第一次移动
+        if (p->isFirstMove()) {
+            p->setFirstMove();
+        }
+    } else if (!isEmpty && p->color() != tmp->color()) {
         // 选中的位置有敌方棋子
-        if (tmp->x() == toX && tmp->y() == toY && tmp->color() != m_pieces[i]->color()) {
-            // ...
-            break;
+        // 该棋子被移除
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            if (m_pieces[i]->id() == tmp->id()) {
+                m_pieces.remove(i);
+                qDebug() << "remove id: " << tmp->id();
+                qDebug() << "m_pieces.length(): " << m_pieces.length();
+            }
         }
     }
 
     p->setX(toX);
     p->setY(toY);
 
+    if (turn == WhitePlayer) {
+        turn = BlackPlayer;
+    } else if (turn == BlackPlayer) {
+        turn = WhitePlayer;
+    }
+
     // createIndex创建并返回一个 QModelIndex 对象，该对象指向模型中移动后的位置
-    QModelIndex newIndex = createIndex(toY * 8 + toX, 0);
+    QModelIndex fromIndex = createIndex(fromY * 8 + fromX, 0);
+    QModelIndex toIndex = createIndex(toY * 8 + toX, 0);
 
     // dataChanged是QAbstractItemModel的一个信号，通知界面更新棋子的位置
-    // 两个参数都是toIndex，意味着只通知了一个数据项的改变，用于单个数据项的更新
-    emit dataChanged(newIndex, newIndex);
+    // 两个参数都是newIndex，意味着只通知了一个数据项的改变，用于单个数据项的更新
+    emit dataChanged(fromIndex, fromIndex);
+    emit dataChanged(toIndex, toIndex);
 }
 
 QVector<int> Board::possibleMoves(int x, int y)
@@ -168,6 +204,11 @@ QVector<int> Board::possibleMoves(int x, int y)
         }
     }
 
+    if (turn != colortoPlayer(p->color())) {
+        qDebug() << "不是此方回合";
+        return {};
+    }
+
     switch (p->type()) {
     case Pieces::pawn: {
         QVector<int> moveList;
@@ -177,8 +218,18 @@ QVector<int> Board::possibleMoves(int x, int y)
         // 白子上移（y减少），黑子下移（y增加）
         int offset = p->color() == Pieces::Color::White ? -1 : 1;
 
-        Pawn *newPawn = new Pawn{p->x(), p->y() + 1 * offset, p->color(), p->id()};
-        if (newPawn->y() < 8 && newPawn->y() >= 0) {
+        isEmpty = true;
+        auto newPawn = new Pawn{p->x(), p->y() + 1 * offset, p->color(), p->id()};
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            tmp = m_pieces[i];
+            if (tmp->x() == newPawn->x() && tmp->y() == newPawn->y()) {
+                isEmpty = false;
+                break; // 找到棋子, 说明当前x,y位置不为空
+            }
+            tmp = nullptr;
+        }
+        // 没有棋子才可以前进
+        if (isEmpty && newPawn->y() < 8 && newPawn->y() >= 0) {
             int pos = newPawn->y() * 8 + newPawn->x();
             if (newPawn->y() == 0 || newPawn->y() == 7) {
                 moveList.append(pos); // 晋升(兵升变)
@@ -235,7 +286,7 @@ QVector<int> Board::possibleMoves(int x, int y)
         }
         pos = newPawn->y() * 8 + newPawn->x();
         if (newPawn->y() < 8 && newPawn->y() >= 0 && newPawn->x() >= 0 && !isEmpty
-            && p->color() != p->color()) {
+            && tmp->color() != p->color()) {
             moveList.append(pos); // 吃子
         }
 
@@ -344,6 +395,7 @@ QVector<int> Board::possibleMoves(int x, int y)
                 break;
             }
         }
+
         return moveList;
     }
     case Pieces::knight: {
@@ -708,18 +760,19 @@ QVector<int> Board::possibleMoves(int x, int y)
                 tmp = nullptr;
             }
             int pos = y * 8 + x;
-            if ((x < 0) || (x > 7) || (y < 0) || (y > 7)) {
-                continue; // 超出棋盘, 退出当前循环，直接进行下一次循环
-            }
-            if (isEmpty) {
-                moveList.append(pos); // 移动
-            } else if (tmp->color() != p->color()) {
-                moveList.append(pos); // 吃子
+            if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+                if (isEmpty) {
+                    moveList.append(pos); // 移动
+                } else if (tmp->color() != p->color()) {
+                    moveList.append(pos); // 吃子
+                }
             }
         }
 
         // 王车易位
         // ...
+
+        return moveList;
     }
     default:
         return {};

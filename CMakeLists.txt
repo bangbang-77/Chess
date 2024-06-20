@@ -9,7 +9,7 @@ find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup()
 
-qt_add_executable(appchess main.cpp)
+qt_add_executable(appchess )
 
 qt_add_qml_module(
   appchess
@@ -30,7 +30,12 @@ qt_add_qml_module(
   chess.h
   chess.cpp
   RESOURCES
-  resource.qrc)
+  resource.qrc
+  QML_FILES
+  QML_FILES
+  SOURCES main.cpp
+  QML_FILES
+  SOURCES  )
 
 target_compile_features(appchess PRIVATE cxx_std_20)
 

@@ -32,8 +32,6 @@ public:
 
     const Color color();
 
-    const QString &name();
-
     virtual PieceType type() const = 0;
 
     bool isFirstMove();
@@ -44,7 +42,6 @@ private:
     int m_x;
     int m_y;
     Color m_color;
-    QString m_name;
     int m_id;
     bool firstMove = true;
 };
