@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 
 ApplicationWindow {
@@ -49,7 +50,6 @@ ApplicationWindow {
 
         for(var i = 0; i < movelist.length; i++) {
             console.log("可走位置：" + movelist[i]);
-            // rec.visible  = true
             if(gridRep.itemAt(movelist[i]).children.length > 0) {
                 gridRep.itemAt(movelist[i]).children[1].visible = true
                 gridRep.itemAt(movelist[i]).children[1].z = 999999
@@ -63,11 +63,165 @@ ApplicationWindow {
 
         for(var i = 0; i < movelist.length; i++) {
             console.log("清除color：" + movelist[i]);
-            // rec.visible = false
             if(gridRep.itemAt(movelist[i]).children.length > 0) {
                 gridRep.itemAt(movelist[i]).children[1].visible = false
                 gridRep.itemAt(movelist[i]).children[1].z = -1
             }
+        }
+    }
+
+    Rectangle {
+        width: 100
+        height: 50
+        anchors.horizontalCenter: parent.horizontalCenter
+        border.color: "lightgreen"
+        border.width: 3
+        Text {
+            id: turnText
+            color: "red"
+            anchors.centerIn: parent
+            text: qsTr(chessBoard.getTurn() + " turn")
+        }
+    }
+
+    // 模态遮罩层(游戏结束)
+    Rectangle {
+        id: gameEndMask
+        anchors.fill: parent
+        visible: false
+        z: -6
+        color: "transparent"
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                gameEnd.visible = true
+                // 跳转回主界面...
+            }
+        }
+
+        // 游戏结束弹窗
+        MessageDialog {
+            id: gameEnd
+            title: "游戏结束"
+            text: ""
+            onAccepted: {
+                console.log("end弹窗被接受");
+                gameEnd.close();
+                // 跳转回主界面...
+            }
+        }
+    }
+
+    // 模态遮罩层(兵升变提示)
+    Rectangle {
+        id: promoteMask
+        anchors.fill: parent
+        visible: false
+        z: -6
+        color: "transparent"
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                promote.visible = true
+            }
+        }
+
+        // 晋升弹窗
+        Dialog {
+            id: promote
+            title: "兵升变"
+            width: 250
+            height: 350
+            modal: true
+            anchors.centerIn: parent
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("必须晋升（强制)")
+                color: "red"
+            }
+
+            spacing: 5
+
+            GridLayout {
+                columns: 2
+                rows: 2
+                anchors.centerIn: parent
+                columnSpacing: 5
+                rowSpacing: 5
+
+                Button {
+                    id: queen
+                    text: qsTr("晋升成后")
+                    onClicked: {
+                        // console.log("promote queen");
+                        chessBoard.setPromotion("queen")
+                        chessBoard.changeType(toX, toY)
+                        promote.close();
+                        promoteMask.visible = false
+                    }
+                }
+                Button {
+                    id: rook
+                    text: qsTr("晋升成车")
+                    onClicked: {
+                        // console.log("promote rook");
+                        chessBoard.setPromotion("rook")
+                        chessBoard.changeType(toX, toY)
+                        promote.close();
+                        promoteMask.visible = false
+                    }
+                }
+                Button {
+                    id: knight
+                    text: qsTr("晋升成马")
+                    onClicked: {
+                        // console.log("promote knight");
+                        chessBoard.setPromotion("knight")
+                        chessBoard.changeType(toX, toY)
+                        promote.close();
+                        promoteMask.visible = false
+                    }
+                }
+                Button {
+                    id: bishop
+                    text: qsTr("晋升成象")
+                    onClicked: {
+                        // console.log("promote bishop");
+                        chessBoard.setPromotion("bishop")
+                        chessBoard.changeType(toX, toY)
+                        promote.close();
+                        promoteMask.visible = false
+                    }
+                }
+            }
+        }
+    }
+
+
+    Connections {
+        target: chessBoard
+        function onWhiteWin() {
+            console.log("Received signal in QML, White Win");
+            gameEndMask.visible = true
+            gameEndMask.z = 999999
+            gameEnd.text = "White Win!"
+            gameEnd.visible = true
+        }
+        function onBlackWin() {
+            console.log("Received signal in QML, Black Win");
+            gameEndMask.visible = true
+            gameEndMask.z = 999999
+            gameEnd.text = "Black Win!"
+            gameEnd.visible = true
+        }
+        function onPromote() {
+            console.log("晋升弹窗提示")
+            promoteMask.visible = true
+            promoteMask.z = 999999
+            promote.visible = true
         }
     }
 
@@ -110,6 +264,7 @@ ApplicationWindow {
                             toX = index % 8
                             toY = (index - toX) / 8
                             chessBoard.move(fromX, fromY, toX, toY)
+                            turnText.text = qsTr(chessBoard.getTurn() + " turn")
                         }
                     }
                 }

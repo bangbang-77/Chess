@@ -18,6 +18,11 @@ public:
 
     // 判断黑白方
     Player colortoPlayer(Pieces::Color color);
+    Q_INVOKABLE QString getTurn();
+
+    // 晋升相关
+    Q_INVOKABLE void setPromotion(QString promotion);
+    Q_INVOKABLE void changeType(int x, int y);
 
     // 初始化棋子
     QVector<QSharedPointer<Pieces>> initPieces();
@@ -31,8 +36,15 @@ public:
     Q_INVOKABLE void move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE QVector<int> possibleMoves(int x, int y);
 
+signals:
+    void whiteWin();
+    void blackWin();
+    void promote();
+
 private:
     QVector<QSharedPointer<Pieces>> m_pieces;
 
     Player turn;
+
+    QString m_promotion;
 };
