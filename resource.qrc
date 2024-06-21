@@ -12,5 +12,6 @@
         <file>img/bishop-white.png</file>
         <file>img/castle-black.png</file>
         <file>img/castle-white.png</file>
+        <file>img/start.png</file>
     </qresource>
 </RCC>
