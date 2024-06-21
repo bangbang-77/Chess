@@ -3,12 +3,17 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
-ApplicationWindow {
+Page {
     width: 450
     height: 800
     visible: true
     title: qsTr("hello, world")
 
+    Button {
+        id:back
+        text: "Back"
+        onClicked: stackView.pop() // 返回上一页
+    }
     // 棋盘
     Rectangle {
         id: board
@@ -107,7 +112,6 @@ ApplicationWindow {
             text: ""
             onAccepted: {
                 console.log("end弹窗被接受");
-                gameEnd.close();
                 // 跳转回主界面...
             }
         }
