@@ -18,7 +18,7 @@ qt_add_qml_module(
   VERSION
   1.0
   QML_FILES
-  main.qml
+  board.qml
   SOURCES
   SOURCES
   board.h
@@ -35,7 +35,10 @@ qt_add_qml_module(
   QML_FILES
   SOURCES main.cpp
   QML_FILES
-  SOURCES  )
+  SOURCES
+  QML_FILES  StartPage.qml
+  QML_FILES more.qml
+  QML_FILES main.qml  )
 
 target_compile_features(appchess PRIVATE cxx_std_20)
 

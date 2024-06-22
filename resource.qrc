@@ -12,5 +12,8 @@
         <file>img/bishop-white.png</file>
         <file>img/castle-black.png</file>
         <file>img/castle-white.png</file>
+        <file>img/start.png</file>
+        <file>img/icon.png</file>
+        <file>music/start_bgm.ogg</file>
     </qresource>
 </RCC>
