@@ -54,13 +54,6 @@ public:
     virtual ~Pawn();
 
     PieceType type() const override;
-
-    bool isFirstMove();
-
-    void setFirstMove();
-
-private:
-    bool firstMove = true;
 };
 
 // 象

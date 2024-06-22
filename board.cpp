@@ -17,6 +17,79 @@ Board::Player Board::colortoPlayer(Pieces::Color color)
     }
 }
 
+QString Board::getTurn()
+{
+    if (turn == WhitePlayer) {
+        return "white";
+    } else if (turn == BlackPlayer) {
+        return "black";
+    }
+
+    return "";
+}
+
+void Board::setPromotion(QString promotion)
+{
+    m_promotion = promotion;
+}
+
+void Board::changeType(int x, int y)
+{
+    QSharedPointer<Pieces> p;
+    int i;
+
+    for (i = 0; i < m_pieces.length(); ++i) {
+        p = m_pieces[i];
+        if (p->x() == x && p->y() == y) {
+            qDebug() << "该棋子在m_pieces[i]里的索引为i: " << i;
+            break; // 找到当前棋子
+        }
+    }
+
+    // 变换棋子类型的思路：
+    // 1.创建一个新的棋子
+    // 2.在vector最后加入新棋子
+    // 3.将位于末尾的新棋子与索引为i的棋子交换位置
+    // 4.删除末尾的棋子(即原来的棋子)
+
+    if (m_promotion == "queen") {
+        // 新的后
+        QSharedPointer<Pieces> newQueen{new Queen{x, y, p->color(), i}};
+
+        m_pieces.append(newQueen);
+        m_pieces[i].swap(m_pieces.last());
+        m_pieces.pop_back();
+        qDebug() << "change to queen";
+    } else if (m_promotion == "rook") {
+        // 新的车
+        QSharedPointer<Pieces> newRook{new Rook{x, y, p->color(), i}};
+
+        m_pieces.append(newRook);
+        m_pieces[i].swap(m_pieces.last());
+        m_pieces.pop_back();
+        qDebug() << "change to rook";
+    } else if (m_promotion == "knight") {
+        // 新的马
+        QSharedPointer<Pieces> newKnight{new Knight{x, y, p->color(), i}};
+
+        m_pieces.append(newKnight);
+        m_pieces[i].swap(m_pieces.last());
+        m_pieces.pop_back();
+        qDebug() << "change to knight";
+    } else if (m_promotion == "bishop") {
+        // 新的象
+        QSharedPointer<Pieces> newbishop{new Bishop{x, y, p->color(), i}};
+
+        m_pieces.append(newbishop);
+        m_pieces[i].swap(m_pieces.last());
+        m_pieces.pop_back();
+        qDebug() << "change to bishop";
+    }
+
+    QModelIndex index = createIndex(y * 8 + x, 0);
+    emit dataChanged(index, index);
+}
+
 QVector<QSharedPointer<Pieces>> Board::initPieces()
 {
     QVector<QSharedPointer<Pieces>> pieces
@@ -165,6 +238,18 @@ void Board::move(int fromX, int fromY, int toX, int toY)
         }
     } else if (!isEmpty && p->color() != tmp->color()) {
         // 选中的位置有敌方棋子
+
+        // 选中的是王
+        if (tmp->type() == Pieces::king) {
+            if (tmp->color() == Pieces::White) {
+                emit blackWin();
+                return;
+            } else if (tmp->color() == Pieces::Black) {
+                emit whiteWin();
+                return;
+            }
+        }
+
         // 该棋子被移除
         for (int i = 0; i < m_pieces.length(); ++i) {
             if (m_pieces[i]->id() == tmp->id()) {
@@ -172,6 +257,15 @@ void Board::move(int fromX, int fromY, int toX, int toY)
                 qDebug() << "remove id: " << tmp->id();
                 qDebug() << "m_pieces.length(): " << m_pieces.length();
             }
+        }
+    }
+
+    // 兵升变(晋升)
+    if (p->type() == Pieces::pawn) {
+        if (p->color() == Pieces::White && toY == 0) {
+            emit promote();
+        } else if (p->color() == Pieces::Black && toY == 7) {
+            emit promote();
         }
     }
 
@@ -205,7 +299,7 @@ QVector<int> Board::possibleMoves(int x, int y)
     }
 
     if (turn != colortoPlayer(p->color())) {
-        qDebug() << "不是此方回合";
+        // qDebug() << "不是此方回合";
         return {};
     }
 
@@ -521,7 +615,7 @@ QVector<int> Board::possibleMoves(int x, int y)
                 tmp = nullptr;
             }
 
-            int pos = i * 8 + p->y();
+            int pos = p->y() * 8 + i;
             if (isEmpty) {
                 moveList.append(pos); // 移动
             } else if (tmp->color() != p->color()) {
