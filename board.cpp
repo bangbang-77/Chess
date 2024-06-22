@@ -162,7 +162,7 @@ QVariant Board::data(const QModelIndex &index, int role) const
                     break;
 
                 case Pieces::rook:
-                    src.append("castle");
+                    src.append("rook");
                     break;
 
                 case Pieces::knight:
@@ -181,10 +181,10 @@ QVariant Board::data(const QModelIndex &index, int role) const
                 }
                 switch (p->color()) {
                 case Pieces::White:
-                    src.append("-white.png");
+                    src.append("-white.svg");
                     return src;
                 case Pieces::Black:
-                    src.append("-black.png");
+                    src.append("-black.svg");
                     return src;
                 default:
                     break;
@@ -299,7 +299,7 @@ QVector<int> Board::possibleMoves(int x, int y)
     }
 
     if (turn != colortoPlayer(p->color())) {
-        // qDebug() << "不是此方回合";
+        qDebug() << "不是此方回合";
         return {};
     }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QSharedPointer>
 
 class Pieces : public QObject
 {
@@ -84,6 +85,9 @@ public:
     virtual ~Rook();
 
     PieceType type() const override;
+
+    // 王车易位相关
+    bool isRookMoved(QSharedPointer<Pieces> p);
 };
 
 // 后
@@ -104,4 +108,7 @@ public:
     virtual ~King();
 
     PieceType type() const override;
+
+    // 王车易位相关
+    bool isKingMoved(QSharedPointer<Pieces> p);
 };

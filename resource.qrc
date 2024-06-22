@@ -1,19 +1,19 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/king-black.png</file>
-        <file>img/king-white.png</file>
-        <file>img/knight-black.png</file>
-        <file>img/knight-white.png</file>
-        <file>img/pawn-black.png</file>
-        <file>img/pawn-white.png</file>
-        <file>img/queen-black.png</file>
-        <file>img/queen-white.png</file>
-        <file>img/bishop-black.png</file>
-        <file>img/bishop-white.png</file>
-        <file>img/castle-black.png</file>
-        <file>img/castle-white.png</file>
         <file>img/start.png</file>
         <file>img/icon.png</file>
         <file>music/start_bgm.ogg</file>
+        <file>img/bishop-black.svg</file>
+        <file>img/bishop-white.svg</file>
+        <file>img/king-black.svg</file>
+        <file>img/king-white.svg</file>
+        <file>img/knight-black.svg</file>
+        <file>img/knight-white.svg</file>
+        <file>img/pawn-black.svg</file>
+        <file>img/pawn-white.svg</file>
+        <file>img/queen-black.svg</file>
+        <file>img/queen-white.svg</file>
+        <file>img/rook-black.svg</file>
+        <file>img/rook-white.svg</file>
     </qresource>
 </RCC>
