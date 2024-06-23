@@ -321,6 +321,63 @@ void Board::move(int fromX, int fromY, int toX, int toY)
         }
     }
 
+    // 吃过路兵
+    // 这里移动过后，敌方兵被吃，自动消失
+    if (p->type() == Pieces::pawn) {
+        if (p->color() == Pieces::White && toY == 2) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == toX && tmp->y() == toY + 1 && tmp->type() == Pieces::pawn
+                    && tmp->color() == Pieces::Black) {
+                    isEmpty = false;
+                    break; // 找到(toX, toY)的下方有黑兵
+                }
+                tmp = nullptr;
+            }
+            if (!isEmpty) {
+                // (toX, toY)的下方的黑兵被移除
+                for (int i = 0; i < m_pieces.length(); ++i) {
+                    if (m_pieces[i]->id() == tmp->id()) {
+                        m_pieces.remove(i);
+                        qDebug() << "吃过路兵 - remove id: " << tmp->id();
+                        qDebug() << "m_pieces.length(): " << m_pieces.length();
+
+                        // 移除被吃的黑兵的图像
+                        QModelIndex tmpIndex = createIndex(tmp->y() * 8 + tmp->x(), 0);
+                        emit dataChanged(tmpIndex, tmpIndex);
+                    }
+                }
+            }
+
+        } else if (p->color() == Pieces::Black && toY == 5) {
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == toX && tmp->y() == toY - 1 && tmp->type() == Pieces::pawn
+                    && tmp->color() == Pieces::White) {
+                    isEmpty = false;
+                    break; // 找到(toX, toY)的上方有白兵
+                }
+                tmp = nullptr;
+            }
+            if (!isEmpty) {
+                // (toX, toY)的上方的白兵被移除
+                for (int i = 0; i < m_pieces.length(); ++i) {
+                    if (m_pieces[i]->id() == tmp->id()) {
+                        m_pieces.remove(i);
+                        qDebug() << "吃过路兵 - remove id: " << tmp->id();
+                        qDebug() << "m_pieces.length(): " << m_pieces.length();
+
+                        // 移除被吃的白兵的图像
+                        QModelIndex tmpIndex = createIndex(tmp->y() * 8 + tmp->x(), 0);
+                        emit dataChanged(tmpIndex, tmpIndex);
+                    }
+                }
+            }
+        }
+    }
+
     p->setX(toX);
     p->setY(toY);
 
@@ -396,7 +453,6 @@ QVector<int> Board::possibleMoves(int x, int y)
             pos = newPawn->y() * 8 + newPawn->x();
             if (p->isFirstMove() && isEmpty) {
                 moveList.append(pos); // 移动
-                // p->setFirstMove();
             }
         }
 
@@ -436,7 +492,41 @@ QVector<int> Board::possibleMoves(int x, int y)
         }
 
         // 吃过路兵
-        // ...
+        // 白方兵y = 3, 黑方兵y = 4
+        if ((p->y() == 3 && p->color() == Pieces::White)
+            || (p->y() == 4 && p->color() == Pieces::Black)) {
+            // 检查左方是否有敌方兵
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == p->x() - 1 && tmp->y() == p->y() && tmp->type() == Pieces::pawn
+                    && tmp->color() != p->color()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+            if (!isEmpty) {
+                pos = (tmp->y() + 1 * offset) * 8 + tmp->x();
+                moveList.append(pos);
+            }
+
+            // 检查右方是否有敌方兵
+            isEmpty = true;
+            for (int i = 0; i < m_pieces.length(); ++i) {
+                tmp = m_pieces[i];
+                if (tmp->x() == p->x() + 1 && tmp->y() == p->y() && tmp->type() == Pieces::pawn
+                    && tmp->color() != p->color()) {
+                    isEmpty = false;
+                    break; // 找到棋子, 说明当前x,y位置不为空
+                }
+                tmp = nullptr;
+            }
+            if (!isEmpty) {
+                pos = (tmp->y() + 1 * offset) * 8 + tmp->x();
+                moveList.append(pos);
+            }
+        }
 
         return moveList;
     }

@@ -14,6 +14,7 @@ Page {
         text: "Back"
         onClicked: stackView.pop() // 返回上一页
     }
+
     // 棋盘
     Rectangle {
         id: board
