@@ -205,6 +205,30 @@ QHash<int, QByteArray> Board::roleNames() const
     return roles;
 }
 
+void Board::autoMoveRook(int fromX, int fromY, int toX, int toY)
+{
+    QSharedPointer<Pieces> p;
+
+    for (int i = 0; i < m_pieces.length(); ++i) {
+        p = m_pieces[i];
+        if (p->x() == fromX && p->y() == fromY && p->type() == Pieces::rook) {
+            break; // 找到当前棋子
+        }
+    }
+    p->setX(toX);
+    p->setY(toY);
+    p->setFirstMove();
+
+    // createIndex创建并返回一个 QModelIndex 对象，该对象指向模型中移动后的位置
+    QModelIndex fromIndex = createIndex(fromY * 8 + fromX, 0);
+    QModelIndex toIndex = createIndex(toY * 8 + toX, 0);
+
+    // dataChanged是QAbstractItemModel的一个信号，通知界面更新棋子的位置
+    // 两个参数都是newIndex，意味着只通知了一个数据项的改变，用于单个数据项的更新
+    emit dataChanged(fromIndex, fromIndex);
+    emit dataChanged(toIndex, toIndex);
+}
+
 void Board::move(int fromX, int fromY, int toX, int toY)
 {
     QSharedPointer<Pieces> p, tmp;
@@ -232,6 +256,34 @@ void Board::move(int fromX, int fromY, int toX, int toY)
 
     if (isEmpty) {
         // 选中的位置没有棋子
+
+        // 王车易位在这里！！！！！！王动了之后自动变换车的位置
+        if (p->type() == Pieces::king && p->color() == Pieces::Black) {
+            // 短易位
+            if ((toY * 8 + toX) == 6) {
+                autoMoveRook(7, 0, 5, 0);
+                qDebug() << "王车易位了！！！";
+            }
+
+            // 长易位
+            if ((toY * 8 + toX) == 2) {
+                autoMoveRook(0, 0, 3, 0);
+                qDebug() << "王车易位了！！！";
+            }
+        } else if (p->type() == Pieces::king && p->color() == Pieces::White) {
+            // 短易位
+            if ((toY * 8 + toX) == 62) {
+                autoMoveRook(7, 7, 5, 7);
+                qDebug() << "王车易位了！！！";
+            }
+
+            // 长易位
+            if ((toY * 8 + toX) == 58) {
+                autoMoveRook(0, 7, 3, 7);
+                qDebug() << "王车易位了！！！";
+            }
+        }
+
         // 设置第一次移动
         if (p->isFirstMove()) {
             p->setFirstMove();
@@ -299,7 +351,6 @@ QVector<int> Board::possibleMoves(int x, int y)
     }
 
     if (turn != colortoPlayer(p->color())) {
-        qDebug() << "不是此方回合";
         return {};
     }
 
@@ -864,7 +915,123 @@ QVector<int> Board::possibleMoves(int x, int y)
         }
 
         // 王车易位
-        // ...
+        // 四个车,1黑左上、2黑右上、3白左下、4白右下
+        QSharedPointer<Pieces> rook1, rook2, rook3, rook4;
+        qDebug() << "崩溃了。。。。。。。。。。。。。。。。。";
+
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            rook1 = m_pieces[i];
+            if (rook1->type() == Pieces::rook && rook1->x() == 0 && rook1->y() == 0
+                && rook1->isFirstMove() && rook1->color() == Pieces::Black) {
+                break; // 找到左上角的黑方车(未移动过)
+            }
+            rook1 = nullptr;
+        }
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            rook2 = m_pieces[i];
+            if (rook2->type() == Pieces::rook && rook2->x() == 7 && rook2->y() == 0
+                && rook2->isFirstMove() && rook2->color() == Pieces::Black) {
+                break; // 找到右上角的黑方车(未移动过)
+            }
+            rook2 = nullptr;
+        }
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            rook3 = m_pieces[i];
+            if (rook3->type() == Pieces::rook && rook3->x() == 0 && rook3->y() == 7
+                && rook3->isFirstMove() && rook3->color() == Pieces::White) {
+                break; // 找到左下角的白方车(未移动过)
+            }
+            rook3 = nullptr;
+        }
+        for (int i = 0; i < m_pieces.length(); ++i) {
+            rook4 = m_pieces[i];
+            if (rook4->type() == Pieces::rook && rook4->x() == 7 && rook4->y() == 7
+                && rook4->isFirstMove() && rook4->color() == Pieces::White) {
+                break; // 找到右下角的白方车(未移动过)
+            }
+            rook4 = nullptr;
+        }
+
+        // 王没有移动过
+        if (p->type() == Pieces::king && p->isFirstMove()) {
+            if (p->color() == Pieces::Black) {
+                // 短易位(右)
+                for (int i = 1; i <= 2; i++) {
+                    isEmpty = true;
+                    for (int j = 0; j < m_pieces.length(); ++j) {
+                        tmp = m_pieces[j];
+                        if (tmp->x() == p->x() + i && tmp->y() == p->y()) {
+                            isEmpty = false;
+                            break; // 找到王右边两格中有棋子，不为空
+                        }
+                        tmp = nullptr;
+                    }
+                    if (!isEmpty) {
+                        break;
+                    }
+                }
+                if (rook2 != nullptr && isEmpty) {
+                    moveList.append(6);
+                }
+
+                // 长易位(左)
+                for (int i = 1; i <= 3; i++) {
+                    isEmpty = true;
+                    for (int j = 0; j < m_pieces.length(); ++j) {
+                        tmp = m_pieces[j];
+                        if (tmp->x() == p->x() - i && tmp->y() == p->y()) {
+                            isEmpty = false;
+                            break; // 找到王左边三格中有棋子，不为空
+                        }
+                        tmp = nullptr;
+                    }
+                    if (!isEmpty) {
+                        break;
+                    }
+                }
+                if (rook1 != nullptr && isEmpty) {
+                    moveList.append(2);
+                }
+            } else if (p->color() == Pieces::White) {
+                // 短易位(右)
+                for (int i = 1; i <= 2; i++) {
+                    isEmpty = true;
+                    for (int j = 0; j < m_pieces.length(); ++j) {
+                        tmp = m_pieces[j];
+                        if (tmp->x() == p->x() + i && tmp->y() == p->y()) {
+                            isEmpty = false;
+                            break; // 找到王右边两格中有棋子，不为空
+                        }
+                        tmp = nullptr;
+                    }
+                    if (!isEmpty) {
+                        break;
+                    }
+                }
+                if (rook4 != nullptr && isEmpty) {
+                    moveList.append(62);
+                }
+
+                // 长易位(左)
+                for (int i = 1; i <= 3; i++) {
+                    isEmpty = true;
+                    for (int j = 0; j < m_pieces.length(); ++j) {
+                        tmp = m_pieces[j];
+                        if (tmp->x() == p->x() - i && tmp->y() == p->y()) {
+                            isEmpty = false;
+                            break; // 找到王左边三格中有棋子，不为空
+                        }
+                        tmp = nullptr;
+                    }
+                    if (!isEmpty) {
+                        break;
+                    }
+                }
+                if (rook3 != nullptr && isEmpty) {
+                    moveList.append(58);
+                }
+            }
+        }
 
         return moveList;
     }

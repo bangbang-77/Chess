@@ -32,6 +32,9 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    // 王车易位相关
+    void autoMoveRook(int fromX, int fromY, int toX, int toY);
+
     // 移动
     Q_INVOKABLE void move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE QVector<int> possibleMoves(int x, int y);

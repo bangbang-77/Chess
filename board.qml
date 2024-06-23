@@ -280,11 +280,12 @@ Page {
                         fromX = index % 8
                         fromY = (index - fromX) / 8
                         console.log("x:" + fromX + " y:" + fromY);
-                        getMoves(fromX, fromY);
+                        if(model.pieceImg !== undefined) {
+                            getMoves(fromX, fromY);
+                        }
                     }
                 }
             }
         }
     }
-
 }

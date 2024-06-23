@@ -96,23 +96,6 @@ Rook::PieceType Rook::type() const
     return rook;
 }
 
-bool Rook::isRookMoved(QSharedPointer<Pieces> p)
-{
-    if (p->type() == rook) {
-        if (p->color() == White && p->x() == 0 && p->y() == 7) {
-            return false;
-        } else if (p->color() == White && p->x() == 7 && p->y() == 7) {
-            return false;
-        } else if (p->color() == Black && p->x() == 0 && p->y() == 0) {
-            return false;
-        } else if (p->color() == Black && p->x() == 7 && p->y() == 0) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 Queen::Queen(int x, int y, const Color color, const int id)
     : Pieces(x, y, color, id)
 {}
@@ -133,17 +116,4 @@ King::~King() {}
 King::PieceType King::type() const
 {
     return king;
-}
-
-bool King::isKingMoved(QSharedPointer<Pieces> p)
-{
-    if (p->type() == king) {
-        if (p->color() == White && p->x() == 4 && p->y() == 7) {
-            return false;
-        } else if (p->color() == Black && p->x() == 4 && p->y() == 0) {
-            return false;
-        }
-    }
-
-    return true;
 }
