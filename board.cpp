@@ -7,6 +7,14 @@ Board::Board()
 
 Board::~Board() {}
 
+void Board::reset()
+{
+    beginResetModel();
+    m_pieces = initPieces(); // 重新初始化棋子
+    turn = WhitePlayer;      // 重置回合为白方
+    qDebug() << "reset";
+    endResetModel();
+}
 Board::Player Board::colortoPlayer(Pieces::Color color)
 {
     switch (color) {

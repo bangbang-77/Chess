@@ -15,7 +15,10 @@ Item{
         Button {
             id:back
             text: "Back"
-            onClicked: manage.goBack();// 返回主页面
+            onClicked: {
+                manage.goBack();// 返回上一页
+                chessBoard.reset();
+            }
         }
         // 棋盘
         Rectangle {

@@ -26,6 +26,8 @@ public:
 
     // 初始化棋子
     QVector<QSharedPointer<Pieces>> initPieces();
+    // 重置model数据
+    Q_INVOKABLE void reset();
 
     // QAbstractListModel的虚函数，用于提供模型数据
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
