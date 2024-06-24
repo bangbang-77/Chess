@@ -4,6 +4,8 @@ import "."
 
 //加载，启动动画
 ApplicationWindow {
+    property alias app: application
+
     id: application
     title: qsTr('Chess')
 

@@ -7,8 +7,8 @@ Item{
     id:board
     Page {
         id:page
-        width: 450
-        height: 800
+        width: app.width
+        height: app.height
         visible: true
         title: qsTr("hello, world")
 
@@ -16,10 +16,11 @@ Item{
             id:back
             text: "Back"
             onClicked: {
-                manage.goBack();// 返回上一页
+                manage.goBack(); // 返回上一页
                 chessBoard.reset();
             }
         }
+
         // 棋盘
         Rectangle {
             id: boardchess
@@ -108,6 +109,9 @@ Item{
                 onClicked: {
                     gameEnd.visible = true
                     // 跳转回主界面...
+                    manage.goBack(); // 返回上一页
+                    chessBoard.reset();
+                    gameEnd.visible = false
                 }
             }
 
@@ -119,6 +123,8 @@ Item{
                 onAccepted: {
                     console.log("end弹窗被接受");
                     // 跳转回主界面...
+                    manage.goBack(); // 返回上一页
+                    chessBoard.reset();
                 }
             }
         }
@@ -168,7 +174,7 @@ Item{
                         onClicked: {
                             // console.log("promote queen");
                             chessBoard.setPromotion("queen")
-                            chessBoard.changeType(toX, toY)
+                            chessBoard.changeType(page.toX, page.toY)
                             promote.close();
                             promoteMask.visible = false
                         }
@@ -179,7 +185,7 @@ Item{
                         onClicked: {
                             // console.log("promote rook");
                             chessBoard.setPromotion("rook")
-                            chessBoard.changeType(toX, toY)
+                            chessBoard.changeType(page.toX, page.toY)
                             promote.close();
                             promoteMask.visible = false
                         }
@@ -190,7 +196,7 @@ Item{
                         onClicked: {
                             // console.log("promote knight");
                             chessBoard.setPromotion("knight")
-                            chessBoard.changeType(toX, toY)
+                            chessBoard.changeType(page.toX, page.toY)
                             promote.close();
                             promoteMask.visible = false
                         }
@@ -201,7 +207,7 @@ Item{
                         onClicked: {
                             // console.log("promote bishop");
                             chessBoard.setPromotion("bishop")
-                            chessBoard.changeType(toX, toY)
+                            chessBoard.changeType(page.toX, page.toY)
                             promote.close();
                             promoteMask.visible = false
                         }

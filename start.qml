@@ -5,9 +5,8 @@ Item{
     id: start
     anchors.fill: parent
     Page {
-        width: 450
-        height: 800
-
+        width: app.width
+        height: app.height
 
         background: Image {
             source: "qrc:/img/start.png"
@@ -48,6 +47,12 @@ Item{
                 width: 150
                 height: 100
                 onClicked: manage.modes.set('board')
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: "gray"
+                    opacity: 0.5
+                    radius: 5
+                }
             }
         }
     }

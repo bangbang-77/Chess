@@ -5,8 +5,8 @@ import "."
 Item {
     id: about
     Page {
-        width:450
-        height: 800
+        width: app.width
+        height: app.height
         background:Image {
                 source: "qrc:/img/start.png"
                 fillMode: Image.PreserveAspectFit

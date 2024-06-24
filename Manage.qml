@@ -61,9 +61,9 @@ Item {
             visible: status == Loader.Ready && opacity > 0
 
             opacity: 0
-            Behavior on opacity {
-                NumberAnimation { duration: 1500 }
-            }
+            // Behavior on opacity {
+            //     NumberAnimation { duration: 1500 }
+            // }
         }
 
         Loader {
