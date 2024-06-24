@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/start.png</file>
+        <file>img/icon.png</file>
+        <file>music/start_bgm.ogg</file>
+        <file>img/bishop-black.svg</file>
+        <file>img/bishop-white.svg</file>
+        <file>img/king-black.svg</file>
+        <file>img/king-white.svg</file>
+        <file>img/knight-black.svg</file>
+        <file>img/knight-white.svg</file>
+        <file>img/pawn-black.svg</file>
+        <file>img/pawn-white.svg</file>
+        <file>img/queen-black.svg</file>
+        <file>img/queen-white.svg</file>
+        <file>img/rook-black.svg</file>
+        <file>img/rook-white.svg</file>
+    </qresource>
+</RCC>
