@@ -36,9 +36,12 @@ qt_add_qml_module(
   SOURCES main.cpp
   QML_FILES
   SOURCES
-  QML_FILES  StartPage.qml
-  QML_FILES more.qml
-  QML_FILES main.qml  )
+  QML_FILES  start.qml
+  QML_FILES about.qml
+  QML_FILES main.qml
+  QML_FILES Manage.qml
+  QML_FILES Modes.qml
+  QML_FILES Mode.qml  )
 
 target_compile_features(appchess PRIVATE cxx_std_20)
 
