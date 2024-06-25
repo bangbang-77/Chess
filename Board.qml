@@ -12,12 +12,52 @@ Item{
         visible: true
         title: qsTr("hello, world")
 
+        //是否选择保存进度
         Button {
             id:back
             text: "Back"
-            onClicked: {
-                manage.goBack(); // 返回上一页
-                chessBoard.reset();
+            onClicked: saveOrNot.open()
+        }
+        Dialog {
+            id: saveOrNot
+            title: "进度缓存"
+            width: 300
+            height: 150
+            anchors.centerIn: parent
+
+            contentItem:
+                Column {
+                    spacing: 20
+                    Text {
+                        text: "你想要保存进度吗"
+                        width: parent.width
+                        color:"red"
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    Row {
+                        spacing: 10
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                    Button {
+                        text: "是的"
+                        width: 100
+                        height: 50
+                        onClicked: {
+                            manage.goBack()
+                        }
+                    }
+
+                    Button {
+                        text: "不是"
+                        width: 100
+                        height: 50
+                        onClicked: {
+                            manage.goBack()
+                            chessBoard.reset()
+                        }
+                    }
+                }
             }
         }
 

@@ -11,13 +11,7 @@ Item {
                 source: "qrc:/img/start.png"
                 fillMode: Image.PreserveAspectFit
                 anchors.fill: parent
-                onStatusChanged: {
-                    if (status === Image.Error) {
-                        console.log("Image load error:", source)
-                    } else if (status === Image.Ready) {
-                        console.log("Image loaded successfully:", source)
-                    }
-                }
+                opacity: 0.5
             }
         Column {
             spacing: 40
@@ -42,12 +36,13 @@ Item {
                     id: view
                     anchors.fill: parent
                     Rectangle {
-                        color: "blue"
+                        color: "transparent"
                         Text {
-                            text: qsTr("没想好怎么排版")
+                            text: qsTr("None")
                             anchors.fill: parent
                             color: "white"
-                            font.pointSize: 24
+                            wrapMode: Text.Wrap
+                            font.pointSize: 10
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }

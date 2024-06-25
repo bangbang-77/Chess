@@ -27,14 +27,14 @@ Item{
         }
 
 
-        Column {
+        Row {
             anchors.centerIn: parent
             spacing: 20
             Button {
                 text: "双人联机对战"
                 width: 150
                 height: 100
-                onClicked: manage.modes.set('board')
+                onClicked: chooseColor.open()
                 background: Rectangle {
                     anchors.fill: parent
                     color: "gray"
@@ -54,16 +54,48 @@ Item{
                     radius: 5
                 }
             }
-            Button {
-                text: "双人单机对战"
-                width: 150
-                height: 100
-                onClicked: manage.modes.set('board')
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "gray"
-                    opacity: 0.5
-                    radius: 5
+        }
+        Dialog {
+            id: chooseColor
+            title: "选择颜色"
+            width: 300
+            height: 150
+            anchors.centerIn: parent
+
+            contentItem:
+                Column {
+                    spacing: 20
+                    Text {
+                        text: "请选择成为黑方/白方（不可选择同样颜色）"
+                        width: parent.width
+                        wrapMode: Text.Wrap
+                        color:"red"
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    Row {
+                        spacing: 10
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                    Button {
+                        text: "黑色"
+                        width: 100
+                        height: 50
+                        onClicked: {
+                            manage.modes.set('black')
+                            chooseColor.close()
+                        }
+                    }
+
+                    Button {
+                        text: "白色"
+                        width: 100
+                        height: 50
+                        onClicked: {
+                            manage.modes.set('white')
+                            chooseColor.close()
+                        }
+                    }
                 }
             }
         }

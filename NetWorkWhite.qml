@@ -1,7 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import MyNetWork 1.0
+import "."
 Item {
 
        Page {
@@ -24,38 +26,53 @@ Item {
 
 
 
-              TextField {
-                      id: _textField
-                      width: 220//parent.width
-                      height: 50//parent.height
-                      z:2
-                      placeholderText: "请输入对方的ipv4地址..."
-                      anchors.centerIn: parent
+           Dialog {
+               id: ipDialog
+               title: "输入IPv4地址"
+               standardButtons: Dialog.Ok | Dialog.Cancel
+               width: 300
+               height: 200
+               visible: false
+               anchors.centerIn: parent
 
-                      // 添加一个按钮来触发获取文本的操作
-                      Button {
-                          id: okButton
-                          text: "OK"
-                          anchors.top: _textField.bottom
-                          anchors.right: _textField.right
-                          onClicked: {
-                              ip.myip4=_textField.text
-                              console.log(ip.myip4)
-                              parent.visible=false
-                          }
-                      }
-                      Button {
-                          id: cancelButton
-                          text: "cancel"
-                          anchors.top: _textField.bottom
-                          anchors.left: _textField.left
-                          onClicked: {
-                              console.log(ip.send+"   "+ip.recive)
-                              stackView.pop()
+               ColumnLayout {
+                   anchors.fill: parent
+                   TextField {
+                       id: ipAddress
+                       Layout.fillWidth: true
+                       placeholderText: "请输入对方的IPv4地址..."
+                       onTextChanged: ipDialog.standardButton(Dialog.Ok).enabled = ipAddress.text.trim().length > 0
+                   }
+               }
 
-                          }
-                      }
-                  }
+               onAccepted: {
+                   if (ipAddress.text.trim().length > 0) {
+                       ip.myip4 = ipAddress.text
+                       console.log(ip.myip4)
+                       chessBoard.setWaitPlayer()
+                       ipDialog.close()
+                   }else{
+                       worryInfo.open()
+                   }
+               }
+
+               onRejected: {
+                   console.log("取消输入IP地址")
+                   manage.goBack()
+               }
+           }
+           MessageDialog {
+               id: worryInfo
+               text: "输入不可为空！"
+               onAccepted: {
+                   console.log("end弹窗被接受");
+                   // 跳转回主界面...
+                   manage.goBack(); // 返回上一页
+               }
+           }
+           Component.onCompleted: {
+               ipDialog.open()
+           }
 
               property int fromX: -1
               property int fromY: -1
@@ -104,7 +121,7 @@ Item {
 
                Button {
                    text: "Back"
-                   onClicked: stackView.pop() // 返回上一页
+                   onClicked: manage.goBack() // 返回上一页
                }
            }
            // 棋盘
