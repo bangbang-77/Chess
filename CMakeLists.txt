@@ -9,7 +9,7 @@ find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup()
 
-qt_add_executable(appchess )
+qt_add_executable(appchess)
 
 qt_add_qml_module(
   appchess
@@ -33,15 +33,28 @@ qt_add_qml_module(
   resource.qrc
   QML_FILES
   QML_FILES
-  SOURCES main.cpp
+  SOURCES
+  main.cpp
   QML_FILES
   SOURCES
-  QML_FILES  start.qml
-  QML_FILES about.qml
-  QML_FILES main.qml
-  QML_FILES Manage.qml
-  QML_FILES Modes.qml
-  QML_FILES Mode.qml  )
+  QML_FILES
+  start.qml
+  QML_FILES
+  about.qml
+  QML_FILES
+  main.qml
+  QML_FILES
+  Manage.qml
+  QML_FILES
+  Modes.qml
+  QML_FILES
+  Mode.qml
+  SOURCES
+  mynetwork.h
+  mynetwork.cpp
+  QML_FILES
+  NetWorkBlack.qml
+  NetWorkWhite.qml)
 
 target_compile_features(appchess PRIVATE cxx_std_20)
 

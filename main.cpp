@@ -3,6 +3,7 @@
 #include <QQmlContext>
 
 #include "board.h"
+#include "mynetwork.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,6 +20,8 @@ int main(int argc, char *argv[])
 
     Board chessBoard;
     engine.rootContext()->setContextProperty("chessBoard", &chessBoard);
+
+    qmlRegisterType<MyNetWork>("MyNetWork", 1, 0, "Ipv4");
 
     engine.load(url);
 

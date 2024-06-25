@@ -26,12 +26,24 @@ Item{
             onClicked: manage.modes.set('about')
         }
 
-        Row {
+
+        Column {
             anchors.centerIn: parent
             spacing: 20
-
             Button {
                 text: "双人联机对战"
+                width: 150
+                height: 100
+                onClicked: manage.modes.set('board')
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: "gray"
+                    opacity: 0.5
+                    radius: 5
+                }
+            }
+            Button {
+                text: "双人单机对战"
                 width: 150
                 height: 100
                 onClicked: manage.modes.set('board')

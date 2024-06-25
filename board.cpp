@@ -237,6 +237,30 @@ void Board::autoMoveRook(int fromX, int fromY, int toX, int toY)
     emit dataChanged(toIndex, toIndex);
 }
 
+void Board::setBlackPlayer()
+{
+    if (turn == BlackPlayer) {
+        return;
+    } else {
+        turn = BlackPlayer;
+    }
+}
+void Board::setWhitePlayer()
+{
+    if (turn == WhitePlayer) {
+        return;
+    } else {
+        turn = WhitePlayer;
+    }
+}
+void Board::setWaitPlayer()
+{
+    if (turn == waitPlayer) {
+        return;
+    } else
+        turn = waitPlayer;
+}
+
 void Board::move(int fromX, int fromY, int toX, int toY)
 {
     QSharedPointer<Pieces> p, tmp;
