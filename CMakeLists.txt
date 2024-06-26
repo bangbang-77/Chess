@@ -18,7 +18,7 @@ qt_add_qml_module(
   VERSION
   1.0
   QML_FILES
-  board.qml
+  Board.qml
   SOURCES
   SOURCES
   board.h
@@ -38,11 +38,11 @@ qt_add_qml_module(
   QML_FILES
   SOURCES
   QML_FILES
-  start.qml
+  Start.qml
   QML_FILES
-  about.qml
+  About.qml
   QML_FILES
-  main.qml
+  Main.qml
   QML_FILES
   Manage.qml
   QML_FILES
