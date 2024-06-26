@@ -3,12 +3,14 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import MyNetWork 1.0
 Item {
+    id:netWorkBlack
 
        Page {
            id:_black_page
-           width: 450
-           height: 800
+           width: app.width
+           height: app.height
            visible: true
+
 
 
            Ipv4{id:ip;
@@ -102,13 +104,14 @@ Item {
 
 
            // 返回
-           Row{
-
-               Button {
-                   text: "Back"
-                   onClicked: stackView.pop() // 返回上一页
-               }
-           }
+              Button {
+                  id:back
+                  text: "Back"
+                  onClicked: {
+                      manage.goBack(); // 返回上一页
+                      chessBoard.reset();
+                  }
+              }
            // 棋盘
            Rectangle {
                id: board

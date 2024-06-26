@@ -43,10 +43,10 @@ Item{
                 }
             }
             Button {
-                text: "双人单机对战"
+                text: "双人对战白旗"
                 width: 150
                 height: 100
-                onClicked: manage.modes.set('board')
+                onClicked: manage.modes.set('netWorkWhite')
                 background: Rectangle {
                     anchors.fill: parent
                     color: "gray"
@@ -55,10 +55,10 @@ Item{
                 }
             }
             Button {
-                text: "双人单机对战"
+                text: "双人对战黑棋"
                 width: 150
                 height: 100
-                onClicked: manage.modes.set('board')
+                onClicked: manage.modes.set('netWorkBlack')
                 background: Rectangle {
                     anchors.fill: parent
                     color: "gray"

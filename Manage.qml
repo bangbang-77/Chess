@@ -17,6 +17,22 @@ Item {
             onLeave: startLoader.opacity=0
         }
         Mode{
+            name:"netWorkBlack"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+               netWorkBlackLoader.opacity=1
+            }
+            onLeave: netWorkBlackLoader.opacity=0
+        }
+        Mode{
+            name:"netWorkWhite"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                netWorkWhiteLoader.opacity=1
+            }
+            onLeave: netWorkWhiteLoader.opacity=0
+        }
+        Mode{
             name:"board"
             onEnter:{
                 onBack(function(){modes.set("start")})
@@ -57,6 +73,30 @@ Item {
             id: boardLoader
             anchors { fill: parent }
             source: 'board.qml'
+            active: opacity > 0
+            visible: status == Loader.Ready && opacity > 0
+
+            opacity: 0
+            // Behavior on opacity {
+            //     NumberAnimation { duration: 1500 }
+            // }
+        }
+        Loader {
+            id: netWorkBlackLoader
+            anchors { fill: parent }
+            source: 'NetWorkBlack.qml'
+            active: opacity > 0
+            visible: status == Loader.Ready && opacity > 0
+
+            opacity: 0
+            // Behavior on opacity {
+            //     NumberAnimation { duration: 1500 }
+            // }
+        }
+        Loader {
+            id: netWorkWhiteLoader
+            anchors { fill: parent }
+            source: 'NetWorkWhite.qml'
             active: opacity > 0
             visible: status == Loader.Ready && opacity > 0
 
