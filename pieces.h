@@ -37,7 +37,7 @@ public:
 
     bool isFirstMove();
 
-    void setFirstMove();
+    void setFirstMove(bool moved);
 
 private:
     int m_x;

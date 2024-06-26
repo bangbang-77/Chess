@@ -47,9 +47,9 @@ bool Pieces::isFirstMove()
     return firstMove;
 }
 
-void Pieces::setFirstMove()
+void Pieces::setFirstMove(bool moved)
 {
-    firstMove = false;
+    firstMove = moved;
 }
 
 Pawn::Pawn(int x, int y, const Color color, const int id)

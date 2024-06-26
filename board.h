@@ -26,6 +26,7 @@ public:
 
     // 初始化棋子
     QVector<QSharedPointer<Pieces>> initPieces();
+
     // 重置model数据
     Q_INVOKABLE void reset();
 
@@ -40,6 +41,7 @@ public:
     // 移动
     Q_INVOKABLE void move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE QVector<int> possibleMoves(int x, int y);
+    Q_INVOKABLE void regretChess();
 
     Q_INVOKABLE void setWhitePlayer();
     Q_INVOKABLE void setBlackPlayer();
@@ -56,4 +58,6 @@ private:
     Player turn;
 
     QString m_promotion;
+
+    QVector<QSharedPointer<Pieces>> m_record;
 };

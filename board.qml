@@ -281,6 +281,8 @@ Item{
                                 page.toY = (index - page.toX) / 8
                                 chessBoard.move(page.fromX, page.fromY, page.toX, page.toY)
                                 turnText.text = qsTr(chessBoard.getTurn() + " turn")
+                                page.fromX = -1
+                                page.fromY = -1
                             }
                         }
                     }
@@ -292,11 +294,20 @@ Item{
                             page.fromX = index % 8
                             page.fromY = (index - page.fromX) / 8
                             console.log("x:" + page.fromX + " y:" + page.fromY);
-                            page.getMoves(page.fromX, page.fromY);
+                            if(model.pieceImg !== undefined) {
+                                page.getMoves(page.fromX, page.fromY);
+                            }
                         }
                     }
                 }
             }
+        }
+
+        Button {
+            id: regret
+            text: "Regtet"
+            anchors.bottom: parent.bottom
+            onClicked: chessBoard.regretChess();
         }
     }
 }
