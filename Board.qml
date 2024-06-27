@@ -13,14 +13,8 @@ Item{
         title: qsTr("hello, world")
 
         //是否选择保存进度
-        Button {
-            id:back
-            text: "Back"
-            onClicked: saveOrNot.open()
-        }
         Dialog {
             id: saveOrNot
-            title: "进度缓存"
             width: 300
             height: 150
             anchors.centerIn: parent
@@ -342,12 +336,38 @@ Item{
                 }
             }
         }
+        footer:
+            ToolBar {
+                height: 55
+                background:
+                    Rectangle {
+                        color: "grey"
+                    }
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 55
 
-        Button {
-            id: regret
-            text: "Regtet"
-            anchors.bottom: parent.bottom
-            onClicked: chessBoard.regretChess();
-        }
+                        ToolButton {
+                            text: qsTr("退出")
+                            onClicked: saveOrNot.open()
+                        }
+
+                        ToolButton {
+                            text: qsTr("重开")
+                            onClicked: chessBoard.reset()
+                        }
+
+                        ToolButton {
+                            id: regret
+                            text: qsTr("撤回")
+                            //撤回操作
+                            onClicked: chessBoard.regretChess();
+                        }
+                        ToolButton {
+                            text: qsTr("帮助")
+                            onClicked: manage.modes.set('help')
+                        }
+                    }
+            }
     }
 }

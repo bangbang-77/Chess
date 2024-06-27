@@ -25,12 +25,12 @@ Item {
             onLeave: boardLoader.opacity=0
         }
         Mode{
-            name:"about"
+            name:"help"
             onEnter:{
-                onBack(function(){modes.set("start")})
-                aboutLoader.opacity=1
+                onBack(function(){modes.set("board")})
+                helpLoader.opacity=1
             }
-            onLeave: aboutLoader.opacity=0
+            onLeave: helpLoader.opacity=0
         }
         Mode{
             name:"black"
@@ -48,7 +48,22 @@ Item {
             }
             onLeave: whiteLoader.opacity=0
         }
-
+        Mode{
+            name:"setting"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                settingLoader.opacity=1
+            }
+            onLeave: settingLoader.opacity=0
+        }
+        Mode{
+            name:"developer"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                developLoader.opacity=1
+            }
+            onLeave: developLoader.opacity=0
+        }
         Mode {
             name: 'quit'
             onEnter: Qt.quit()
@@ -65,9 +80,6 @@ Item {
             visible: status == Loader.Ready && opacity > 0
 
             opacity: 0
-            Behavior on opacity {
-                NumberAnimation { duration: 1000 }
-            }
         }
 
         Loader {
@@ -94,9 +106,9 @@ Item {
         }
 
         Loader {
-            id: aboutLoader
+            id: helpLoader
             anchors { fill: parent }
-            source: 'About.qml'
+            source: 'Help.qml'
             active: opacity > 0
 
             visible: status == Loader.Ready && opacity > 0
@@ -120,6 +132,26 @@ Item {
             id: blackLoader
             anchors { fill: parent }
             source: 'NetWorkBlack.qml'
+            active: opacity > 0
+
+            visible: status == Loader.Ready && opacity > 0
+
+            opacity: 0
+        }
+        Loader {
+            id: settingLoader
+            anchors { fill: parent }
+            source: 'Setting.qml'
+            active: opacity > 0
+
+            visible: status == Loader.Ready && opacity > 0
+
+            opacity: 0
+        }
+        Loader {
+            id: developLoader
+            anchors { fill: parent }
+            source: 'Developer.qml'
             active: opacity > 0
 
             visible: status == Loader.Ready && opacity > 0

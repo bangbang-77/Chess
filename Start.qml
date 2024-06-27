@@ -19,15 +19,25 @@ Item{
             }
         }
 
-        Button {
-            text: "关于"
-            width: 80
-            height: 40
-            onClicked: manage.modes.set('about')
+        Button{
+            width: 50
+            height: 50
+            background: Image {
+                source: "qrc:/img/setting.png"
+                fillMode: Image.Stretch
+                anchors.fill: parent
+                onStatusChanged: {
+                    if (status === Image.Error) {
+                        console.log("Image load error:", source)
+                    }
+                }
+            }
+            onClicked: manage.modes.set('setting')
         }
 
-
-        Row {
+        Grid {
+            rows: 2
+            columns: 2
             anchors.centerIn: parent
             spacing: 20
             Button {
@@ -47,6 +57,30 @@ Item{
                 width: 150
                 height: 100
                 onClicked: manage.modes.set('board')
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: "gray"
+                    opacity: 0.5
+                    radius: 5
+                }
+            }
+            Button {
+                text: "开发者名单"
+                width: 150
+                height: 100
+                onClicked: manage.modes.set('developer')
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: "gray"
+                    opacity: 0.5
+                    radius: 5
+                }
+            }
+            Button {
+                text: "退出"
+                width: 150
+                height: 100
+                onClicked: manage.modes.set('quit')
                 background: Rectangle {
                     anchors.fill: parent
                     color: "gray"
