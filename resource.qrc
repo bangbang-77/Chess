@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>img/start.png</file>
         <file>img/icon.png</file>
+        <file>img/setting.png</file>
         <file>music/start_bgm.ogg</file>
         <file>img/bishop-black.svg</file>
         <file>img/bishop-white.svg</file>

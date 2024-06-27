@@ -5,7 +5,7 @@ project(
   VERSION 0.1
   LANGUAGES CXX)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Qml Multimedia)
 
 qt_standard_project_setup()
 
@@ -27,8 +27,8 @@ qt_add_qml_module(
   pieces.h
   pieces.cpp
   SOURCES
-  chess.h
-  chess.cpp
+  musicplayer.h
+  musicplayer.cpp
   RESOURCES
   resource.qrc
   QML_FILES
@@ -40,7 +40,7 @@ qt_add_qml_module(
   QML_FILES
   Start.qml
   QML_FILES
-  About.qml
+  Help.qml
   QML_FILES
   Main.qml
   QML_FILES
@@ -54,7 +54,10 @@ qt_add_qml_module(
   mynetwork.cpp
   QML_FILES
   NetWorkBlack.qml
-  NetWorkWhite.qml)
+  NetWorkWhite.qml
+  QML_FILES
+  Setting.qml
+  QML_FILES Developer.qml)
 
 target_compile_features(appchess PRIVATE cxx_std_20)
 
@@ -68,7 +71,7 @@ set_target_properties(
              MACOSX_BUNDLE TRUE
              WIN32_EXECUTABLE TRUE)
 
-target_link_libraries(appchess PRIVATE Qt6::Quick)
+target_link_libraries(appchess PRIVATE Qt6::Quick Qt6::Qml Qt6::Multimedia)
 
 include(GNUInstallDirs)
 install(

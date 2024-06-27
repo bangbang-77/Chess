@@ -3,13 +3,13 @@ import QtQuick.Controls
 import "."
 
 Item {
-    id: about
+    id: help
     Page {
         width: app.width
         height: app.height
         background:Image {
                 source: "qrc:/img/start.png"
-                fillMode: Image.PreserveAspectFit
+                fillMode: Image.Stretch
                 anchors.fill: parent
                 opacity: 0.5
             }
