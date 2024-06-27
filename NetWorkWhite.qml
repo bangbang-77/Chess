@@ -5,7 +5,7 @@ import QtQuick.Dialogs
 import MyNetWork 1.0
 import "."
 Item {
-    id:netWorkWhite
+    id:white
 
        Page {
            id:_white_page
@@ -20,9 +20,13 @@ Item {
                onReciveChanged: {
                _white_page.splitAndConvert(ip.recive);
                console.log("ip4  "+ip.recive)
-               chessBoard.setBlackPlayer()
-               chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
-               chessBoard.setWhitePlayer()
+                   if(_inToRecive.num5===1){ chessBoard.regretChess()}
+                   else{
+                       chessBoard.setBlackPlayer()
+                       chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
+                       chessBoard.setWhitePlayer()
+                   }
+
                }
            }
 
@@ -87,6 +91,7 @@ Item {
                   property int num2: -1
                   property int num3: -1
                   property int num4: -1
+                  property int num5: 0
                   text:num1+" "+num2+" "+num3+" "+num4
               }
               function splitAndConvert(inputString) {
@@ -95,6 +100,7 @@ Item {
                       _inToRecive.num2=numbers[1];
                       _inToRecive.num3=numbers[2];
                       _inToRecive.num4=numbers[3];
+                      _inToRecive.num5=numbers[4];
               }
 
               Text {
@@ -105,6 +111,7 @@ Item {
                   property int num2: -1
                   property int num3: -1
                   property int num4: -1
+                  property int num5: 0
               }
 
            // 返回
@@ -401,11 +408,18 @@ Item {
                    }
                }
            }
+           //悔棋按键
            Button {
                id: regret
                text: "Regtet"
                anchors.bottom: parent.bottom
-               onClicked: chessBoard.regretChess();
+               onClicked:{
+                   chessBoard.regretChess()
+                   _inToSend.num5=1
+                   ip.sendMessage()
+                   _inToSend.num5=0
+               }
+
            }
        }
 }
