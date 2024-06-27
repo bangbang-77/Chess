@@ -11,6 +11,7 @@ void Board::reset()
 {
     beginResetModel();
     m_pieces = initPieces(); // 重新初始化棋子
+    m_record = {};           // 清空记录
     turn = WhitePlayer;      // 重置回合为白方
     qDebug() << "reset";
     endResetModel();
@@ -62,7 +63,7 @@ void Board::changeType(int x, int y)
 
     if (m_promotion == "queen") {
         // 新的后
-        QSharedPointer<Pieces> newQueen{new Queen{x, y, p->color(), i}};
+        QSharedPointer<Pieces> newQueen{new Queen{x, y, p->color(), p->id()}};
 
         m_pieces.append(newQueen);
         m_pieces[i].swap(m_pieces.last());
@@ -70,7 +71,7 @@ void Board::changeType(int x, int y)
         qDebug() << "change to queen";
     } else if (m_promotion == "rook") {
         // 新的车
-        QSharedPointer<Pieces> newRook{new Rook{x, y, p->color(), i}};
+        QSharedPointer<Pieces> newRook{new Rook{x, y, p->color(), p->id()}};
 
         m_pieces.append(newRook);
         m_pieces[i].swap(m_pieces.last());
@@ -78,7 +79,7 @@ void Board::changeType(int x, int y)
         qDebug() << "change to rook";
     } else if (m_promotion == "knight") {
         // 新的马
-        QSharedPointer<Pieces> newKnight{new Knight{x, y, p->color(), i}};
+        QSharedPointer<Pieces> newKnight{new Knight{x, y, p->color(), p->id()}};
 
         m_pieces.append(newKnight);
         m_pieces[i].swap(m_pieces.last());
@@ -86,7 +87,7 @@ void Board::changeType(int x, int y)
         qDebug() << "change to knight";
     } else if (m_promotion == "bishop") {
         // 新的象
-        QSharedPointer<Pieces> newbishop{new Bishop{x, y, p->color(), i}};
+        QSharedPointer<Pieces> newbishop{new Bishop{x, y, p->color(), p->id()}};
 
         m_pieces.append(newbishop);
         m_pieces[i].swap(m_pieces.last());
@@ -215,7 +216,7 @@ QHash<int, QByteArray> Board::roleNames() const
 
 void Board::autoMoveRook(int fromX, int fromY, int toX, int toY)
 {
-    QSharedPointer<Pieces> p;
+    QSharedPointer<Pieces> p, prev;
 
     for (int i = 0; i < m_pieces.length(); ++i) {
         p = m_pieces[i];
@@ -223,9 +224,11 @@ void Board::autoMoveRook(int fromX, int fromY, int toX, int toY)
             break; // 找到当前棋子
         }
     }
+    prev.reset(new Rook{p->x(), p->y(), p->color(), p->id()});
+    m_record.append(prev);
     p->setX(toX);
     p->setY(toY);
-    p->setFirstMove();
+    p->setFirstMove(false);
 
     // createIndex创建并返回一个 QModelIndex 对象，该对象指向模型中移动后的位置
     QModelIndex fromIndex = createIndex(fromY * 8 + fromX, 0);
@@ -263,7 +266,7 @@ void Board::setWaitPlayer()
 
 void Board::move(int fromX, int fromY, int toX, int toY)
 {
-    QSharedPointer<Pieces> p, tmp;
+    QSharedPointer<Pieces> p, tmp, prev;
     bool isEmpty = true;
 
     for (int i = 0; i < m_pieces.length(); ++i) {
@@ -318,10 +321,35 @@ void Board::move(int fromX, int fromY, int toX, int toY)
 
         // 设置第一次移动
         if (p->isFirstMove()) {
-            p->setFirstMove();
+            p->setFirstMove(false);
         }
     } else if (!isEmpty && p->color() != tmp->color()) {
         // 选中的位置有敌方棋子
+
+        switch (tmp->type()) {
+        case Pieces::pawn:
+            prev.reset(new Pawn{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+            break;
+        case Pieces::bishop:
+            prev.reset(new Bishop{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+            break;
+        case Pieces::knight:
+            prev.reset(new Knight{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+            break;
+        case Pieces::rook:
+            prev.reset(new Rook{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+            break;
+        case Pieces::queen:
+            prev.reset(new Queen{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+            break;
+        case Pieces::king:
+            prev.reset(new King{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+            break;
+        default:
+            break;
+        }
+        m_record.append(prev);
+        qDebug() << "吃子后---m_record.length(): " << m_record.length();
 
         // 选中的是王
         if (tmp->type() == Pieces::king) {
@@ -338,7 +366,8 @@ void Board::move(int fromX, int fromY, int toX, int toY)
         for (int i = 0; i < m_pieces.length(); ++i) {
             if (m_pieces[i]->id() == tmp->id()) {
                 m_pieces.remove(i);
-                qDebug() << "remove id: " << tmp->id();
+                qDebug() << "removed---该棋子在m_pieces[i]里的索引为i: " << i
+                         << "id: " << tmp->id();
                 qDebug() << "m_pieces.length(): " << m_pieces.length();
             }
         }
@@ -372,7 +401,7 @@ void Board::move(int fromX, int fromY, int toX, int toY)
                 for (int i = 0; i < m_pieces.length(); ++i) {
                     if (m_pieces[i]->id() == tmp->id()) {
                         m_pieces.remove(i);
-                        qDebug() << "吃过路兵 - remove id: " << tmp->id();
+                        qDebug() << "吃过路兵 - remove id: " << tmp->id() << "i: " << i;
                         qDebug() << "m_pieces.length(): " << m_pieces.length();
 
                         // 移除被吃的黑兵的图像
@@ -380,6 +409,9 @@ void Board::move(int fromX, int fromY, int toX, int toY)
                         emit dataChanged(tmpIndex, tmpIndex);
                     }
                 }
+                prev.reset(new Pawn{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+                m_record.append(prev);
+                qDebug() << "吃过路兵后---m_record.length(): " << m_record.length();
             }
 
         } else if (p->color() == Pieces::Black && toY == 5) {
@@ -406,12 +438,45 @@ void Board::move(int fromX, int fromY, int toX, int toY)
                         emit dataChanged(tmpIndex, tmpIndex);
                     }
                 }
+                prev.reset(new Pawn{tmp->x(), tmp->y(), tmp->color(), tmp->id()});
+                m_record.append(prev);
+                qDebug() << "吃过路兵后---m_record.length(): " << m_record.length();
             }
         }
     }
 
+    switch (p->type()) {
+    case Pieces::pawn:
+        prev.reset(new Pawn{p->x(), p->y(), p->color(), p->id()});
+        break;
+    case Pieces::bishop:
+        prev.reset(new Bishop{p->x(), p->y(), p->color(), p->id()});
+        break;
+    case Pieces::knight:
+        prev.reset(new Knight{p->x(), p->y(), p->color(), p->id()});
+        break;
+    case Pieces::rook:
+        prev.reset(new Rook{p->x(), p->y(), p->color(), p->id()});
+        break;
+    case Pieces::queen:
+        prev.reset(new Queen{p->x(), p->y(), p->color(), p->id()});
+        break;
+    case Pieces::king:
+        prev.reset(new King{p->x(), p->y(), p->color(), p->id()});
+        break;
+    default:
+        break;
+    }
+
+    m_record.append(prev);
+    qDebug() << "m_record.length(): " << m_record.length();
     p->setX(toX);
     p->setY(toY);
+
+    for (int i = 0; i < m_record.length(); ++i) {
+        qDebug() << i << "m_record[i]->x(): " << m_record[i]->x();
+        qDebug() << i << "m_record[i]->y(): " << m_record[i]->y();
+    }
 
     if (turn == WhitePlayer) {
         turn = BlackPlayer;
@@ -436,6 +501,18 @@ QVector<int> Board::possibleMoves(int x, int y)
         p = m_pieces[i];
         if (p->x() == x && p->y() == y) {
             break; // 找到当前棋子
+        }
+    }
+
+    // 取消第一次移动
+    QVector<QSharedPointer<Pieces>> pieces = initPieces();
+    QSharedPointer<Pieces> piece;
+    for (int i = 0; i < pieces.length(); ++i) {
+        piece = pieces[i];
+        if (p->x() == piece->x() && p->y() == piece->y() && p->color() == piece->color()
+            && p->type() == piece->type() && p->id() == piece->id()) {
+            // 和初始位置一样
+            p->setFirstMove(true); // 设置第一次移动
         }
     }
 
@@ -1160,4 +1237,130 @@ QVector<int> Board::possibleMoves(int x, int y)
     default:
         return {};
     }
+}
+
+void Board::regretChess()
+{
+    QSharedPointer<Pieces> p, tmp;
+    int i;
+
+    if (m_record.length() < 1) {
+        return;
+    }
+
+    for (i = 0; i < m_pieces.length(); ++i) {
+        p = m_pieces[i];
+        if (p->color() == m_record.last()->color() && p->id() == m_record.last()->id()) {
+            // qDebug() << "m_record.last()->x():" << m_record.last()->x();
+            // qDebug() << "m_record.last()->y():" << m_record.last()->y();
+            // qDebug() << "p->x():" << p->x();
+            // qDebug() << "p->y():" << p->y();
+            qDebug() << "悔棋---该棋子在m_pieces[i]里的索引为i: " << i << "id: " << p->id();
+            break; // 找到当前棋子
+        }
+    }
+
+    if (turn == WhitePlayer) {
+        turn = BlackPlayer;
+    } else if (turn == BlackPlayer) {
+        turn = WhitePlayer;
+    }
+
+    // 普通走棋,恢复被吃的棋子
+    if (m_record.length() > 2) {
+        // m_record的倒数第二条记录
+        tmp = m_record.at(m_record.length() - 2);
+
+        // 倒数第二条记录的棋子位置，与最后一条记录的棋子走到的位置相同
+        if (p->x() == tmp->x() && p->y() == tmp->y() && p->color() != tmp->color()) {
+            m_pieces.append(tmp);
+
+            QModelIndex beEaten = createIndex(tmp->y() * 8 + tmp->x(), 0);
+            emit dataChanged(beEaten, beEaten);
+
+            m_record.remove(m_record.length() - 2); // 移除倒数第二条记录
+        }
+    }
+
+    // 吃过路兵,恢复被吃的棋子
+    if (m_record.length() > 2) {
+        // m_record的倒数第二条记录
+        tmp = m_record.at(m_record.length() - 2);
+
+        // 第二条记录记录的棋子位置，与最后一条记录的棋子走到的位置y相差1格
+        if (p->type() == Pieces::pawn && tmp->type() == Pieces::pawn) {
+            // 白子上移（y减少），黑子下移（y增加）
+            int offset = p->color() == Pieces::Color::White ? -1 : 1;
+            if (p->x() == tmp->x() && p->y() == tmp->y() + 1 * offset
+                && p->color() != tmp->color()) {
+                m_pieces.append(tmp);
+
+                QModelIndex beEaten = createIndex(tmp->y() * 8 + tmp->x(), 0);
+                emit dataChanged(beEaten, beEaten);
+
+                m_record.remove(m_record.length() - 2); // 移除倒数第二条记录
+            }
+        }
+    }
+
+    // 王车易位,王水平移动了两格
+    if (p->type() == Pieces::king && p->y() == m_record.last()->y()
+        && (p->x() == m_record.last()->x() + 2 || p->x() == m_record.last()->x() - 2)) {
+        qDebug() << "进入--------------------------------------";
+
+        // m_record的倒数第二条记录,即车原来的位置
+        tmp = m_record.at(m_record.length() - 2);
+        QSharedPointer<Pieces> rook;
+        for (int j = 0; j < m_pieces.length(); ++j) {
+            rook = m_pieces[j];
+            if (rook->type() == Pieces::rook && rook->color() == tmp->color()
+                && rook->id() == tmp->id()) {
+                break; // 找到车现在的位置
+            }
+        }
+
+        // 车现在的位置
+        int present = rook->y() * 8 + rook->x();
+
+        rook->setX(tmp->x());
+        rook->setY(tmp->y());
+
+        QModelIndex fromIndex = createIndex(present, 0);
+        QModelIndex toIndex = createIndex(tmp->y() * 8 + tmp->x(), 0);
+        emit dataChanged(fromIndex, fromIndex);
+        emit dataChanged(toIndex, toIndex);
+        qDebug() << "车返回！！！";
+
+        m_record.remove(m_record.length() - 2); // 移除倒数第二条记录
+    }
+
+    // 现在位置
+    int index = p->y() * 8 + p->x();
+
+    // 上一步棋位置
+    p->setX(m_record.last()->x());
+    p->setY(m_record.last()->y());
+
+    // 兵升变,悔棋后恢复原来的类型
+    if (p->type() != m_record.last()->type() && m_record.last()->type() == Pieces::pawn) {
+        QSharedPointer<Pieces> newPawn{new Pawn{p->x(), p->y(), p->color(), p->id()}};
+
+        m_pieces.append(newPawn);
+        m_pieces[i].swap(m_pieces.last());
+        m_pieces.pop_back();
+        qDebug() << "change back to pawn";
+    }
+
+    QModelIndex now = createIndex(index, 0);
+    QModelIndex prev = createIndex(p->y() * 8 + p->x(), 0);
+    emit dataChanged(now, now);
+    emit dataChanged(prev, prev);
+
+    // qDebug() << "turn: " << turn;
+    // qDebug() << "更新回退........";
+
+    m_record.pop_back(); // 移除最后一条记录
+    qDebug() << "i: " << i << "  p->id(): " << p->id();
+    qDebug() << "m_record.length(): " << m_record.length();
+    qDebug() << "m_pieces.length(): " << m_pieces.length();
 }
