@@ -20,10 +20,13 @@ Item {
             onReciveChanged: {
             _black_page.splitAndConvert(ip.recive);//处理接收的实参
             console.log("ip4  "+ip.recive)
+                if(_inToRecive.num5===1){ chessBoard.regretChess()}
+                    else{
             //移动
-            chessBoard.setWhitePlayer()
-            chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
-            chessBoard.setBlackPlayer()
+                chessBoard.setWhitePlayer()
+                chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
+                chessBoard.setBlackPlayer()
+                }
             }
         }
         //输入ip地址的对话框
@@ -403,7 +406,12 @@ Item {
             id: regret
             text: "Regtet"
             anchors.bottom: parent.bottom
-            onClicked: chessBoard.regretChess();
+            onClicked:{
+                chessBoard.regretChess()
+                _inToSend.num5=1
+                ip.sendMessage()
+                _inToSend.num5=0
+            }
         }
     }
 }
