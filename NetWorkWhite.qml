@@ -7,6 +7,8 @@ import "."
 Item {
     id:white
 
+    property color lightcolor: manage.lightcolor
+    property color darkcolor: manage.darkcolor
        Page {
            id:_white_page
            width: app.width
@@ -146,7 +148,7 @@ Item {
                            color: {
                                var cols = index % 8 //列
                                var rows = (index - cols) / 8 //行 (减去cols再除，得到整数)
-                               return ((rows + cols) % 2 === 0) ? "white" : "gray"
+                               return ((rows + cols) % 2 === 0) ? lightcolor : darkcolor
                            }
                        }
                    }

@@ -7,6 +7,9 @@ import "."
 Item {
 
     id:black
+    property color lightcolor: manage.lightcolor
+    property color darkcolor: manage.darkcolor
+
     Page {
         id:_black_page
         width: app.width
@@ -143,7 +146,7 @@ Item {
                         color: {
                             var cols = index % 8 //列
                             var rows = (index - cols) / 8 //行 (减去cols再除，得到整数)
-                            return ((rows + cols) % 2 === 0) ? "white" : "gray"
+                            return ((rows + cols) % 2 === 0) ? lightcolor : darkcolor
                         }
                     }
                 }
@@ -182,11 +185,11 @@ Item {
             width: 100
             height: 50
             anchors.horizontalCenter: parent.horizontalCenter
-            border.color: "lightgreen"
+            border.color: darkcolor
             border.width: 3
             Text {
                 id: turnText
-                color: "red"
+                color: darkcolor
                 anchors.centerIn: parent
                 text: qsTr(chessBoard.getTurn() + " turn")
             }

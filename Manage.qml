@@ -5,6 +5,8 @@ Item {
     id: manage
 
     property alias modes: modes
+    property color lightcolor: "#FFFFFF"
+    property color darkcolor: "#808080"
 
     Modes{
         id:modes
@@ -187,6 +189,15 @@ Item {
             visible: status == Loader.Ready && opacity > 0
 
             opacity: 0
+            onLoaded: {
+                //发生颜色变化将变化值传递到这里赋值，然后新的值传递到board实现颜色改变
+                if (item) {
+                    item.lightcolorChanged.connect(function() {
+                        manage.lightcolor = item.lightcolor})
+                    item.darkcolorChanged.connect(function() {
+                        manage.darkcolor = item.darkcolor})
+                }
+            }
         }
         Loader {
             id: developLoader
