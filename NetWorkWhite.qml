@@ -401,6 +401,12 @@ Item {
                    }
                }
            }
-    }
+           Button {
+               id: regret
+               text: "Regtet"
+               anchors.bottom: parent.bottom
+               onClicked: chessBoard.regretChess();
+           }
+       }
 }
 
