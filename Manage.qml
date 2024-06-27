@@ -48,6 +48,23 @@ Item {
             }
             onLeave: aboutLoader.opacity=0
         }
+        Mode{
+            name:"black"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                blackLoader.opacity=1
+            }
+            onLeave: blackLoader.opacity=0
+        }
+        Mode{
+            name:"white"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                whiteLoader.opacity=1
+            }
+            onLeave: whiteLoader.opacity=0
+        }
+
         Mode {
             name: 'quit'
             onEnter: Qt.quit()
@@ -58,7 +75,7 @@ Item {
         Loader {
             id: startLoader
             anchors { fill: parent }
-            source: 'start.qml'
+            source: 'Start.qml'
             active: opacity > 0
 
             visible: status == Loader.Ready && opacity > 0
@@ -72,14 +89,24 @@ Item {
         Loader {
             id: boardLoader
             anchors { fill: parent }
-            source: 'board.qml'
+            source: 'Board.qml'
             active: opacity > 0
             visible: status == Loader.Ready && opacity > 0
 
             opacity: 0
-            // Behavior on opacity {
-            //     NumberAnimation { duration: 1500 }
-            // }
+            PropertyAnimation on opacity {
+                id: boardAnimation
+                duration: 500
+                from: 0
+                to: 1
+                running: false // 初始状态为不运行
+            }
+
+            onOpacityChanged: {
+                if (opacity === 1 && boardAnimation.from === 0) {
+                        boardAnimation.running = true; // 仅在从 0 变为 1 时启动动画
+                }
+            }
         }
         Loader {
             id: netWorkBlackLoader
@@ -109,7 +136,7 @@ Item {
         Loader {
             id: aboutLoader
             anchors { fill: parent }
-            source: 'about.qml'
+            source: 'About.qml'
             active: opacity > 0
 
             visible: status == Loader.Ready && opacity > 0
@@ -118,6 +145,26 @@ Item {
             Behavior on opacity {
                 NumberAnimation { duration: 1000 }
             }
+        }
+        Loader {
+            id: whiteLoader
+            anchors { fill: parent }
+            source: 'NetWorkWhite.qml'
+            active: opacity > 0
+
+            visible: status == Loader.Ready && opacity > 0
+
+            opacity: 0
+        }
+        Loader {
+            id: blackLoader
+            anchors { fill: parent }
+            source: 'NetWorkBlack.qml'
+            active: opacity > 0
+
+            visible: status == Loader.Ready && opacity > 0
+
+            opacity: 0
         }
     }
     property var backQueue: []

@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/chess/main.qml"));
+    const QUrl url(QStringLiteral("qrc:/chess/Main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,
@@ -20,7 +20,9 @@ int main(int argc, char *argv[])
 
     Board chessBoard;
     engine.rootContext()->setContextProperty("chessBoard", &chessBoard);
+
     qmlRegisterType<MyNetWork>("MyNetWork", 1, 0, "Ipv4");
+
     engine.load(url);
 
     return app.exec();

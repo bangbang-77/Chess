@@ -1,7 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import MyNetWork 1.0
+import "."
 Item {
     id:netWorkWhite
 
@@ -25,39 +27,53 @@ Item {
            }
 
 
+           Dialog {
+               id: ipDialog
+               title: "输入IPv4地址"
+               standardButtons: Dialog.Ok | Dialog.Cancel
+               width: 300
+               height: 200
+               visible: false
+               anchors.centerIn: parent
 
-              TextField {
-                      id: _textField
-                      width: 220//parent.width
-                      height: 50//parent.height
-                      z:2
-                      placeholderText: "请输入对方的ipv4地址..."
-                      anchors.centerIn: parent
+               ColumnLayout {
+                   anchors.fill: parent
+                   TextField {
+                       id: ipAddress
+                       Layout.fillWidth: true
+                       placeholderText: "请输入对方的IPv4地址..."
+                       onTextChanged: ipDialog.standardButton(Dialog.Ok).enabled = ipAddress.text.trim().length > 0
+                   }
+               }
 
-                      // 添加一个按钮来触发获取文本的操作
-                      Button {
-                          id: okButton
-                          text: "OK"
-                          anchors.top: _textField.bottom
-                          anchors.right: _textField.right
-                          onClicked: {
-                              ip.myip4=_textField.text
-                              console.log(ip.myip4)
-                              parent.visible=false
-                          }
-                      }
-                      Button {
-                          id: cancelButton
-                          text: "cancel"
-                          anchors.top: _textField.bottom
-                          anchors.left: _textField.left
-                          onClicked: {
-                              console.log(ip.send+"   "+ip.recive)
-                              stackView.pop()
+               onAccepted: {
+                   if (ipAddress.text.trim().length > 0) {
+                       ip.myip4 = ipAddress.text
+                       console.log(ip.myip4)
+                       chessBoard.setWaitPlayer()
+                       ipDialog.close()
+                   }else{
+                       worryInfo.open()
+                   }
+               }
 
-                          }
-                      }
-                  }
+               onRejected: {
+                   console.log("取消输入IP地址")
+                   manage.goBack()
+               }
+           }
+           MessageDialog {
+               id: worryInfo
+               text: "输入不可为空！"
+               onAccepted: {
+                   console.log("end弹窗被接受");
+                   // 跳转回主界面...
+                   manage.goBack(); // 返回上一页
+               }
+           }
+           Component.onCompleted: {
+               ipDialog.open()
+           }
 
               property int fromX: -1
               property int fromY: -1
@@ -66,7 +82,6 @@ Item {
 
               Text{
                   id:_inToSend
-                  //记录发送数据
                   visible: false
                   property int num1: -1
                   property int num2: -1
@@ -80,8 +95,7 @@ Item {
                       _inToRecive.num2=numbers[1];
                       _inToRecive.num3=numbers[2];
                       _inToRecive.num4=numbers[3];
-                  }
-
+              }
 
               Text {
                   id: _inToRecive
@@ -93,23 +107,15 @@ Item {
                   property int num4: -1
               }
 
-              // Text {
-              //     id:show
-              //     text: "              收到了："+ip.recive+"  发送了："+ip.send
-              //     width: 220
-              //     height: 60
-              // }
-
-
            // 返回
-              Button {
-                  id:back
-                  text: "Back"
-                  onClicked: {
-                      manage.goBack(); // 返回上一页
-                      chessBoard.reset();
-                  }
-              }
+           Row{
+
+               Button {
+                   text: "Back"
+                   onClicked: manage.goBack() // 返回上一页
+               }
+           }
+
            // 棋盘
            Rectangle {
                id: board
@@ -170,6 +176,165 @@ Item {
                }
            }
 
+
+           Rectangle {
+               width: 100
+               height: 50
+               anchors.horizontalCenter: parent.horizontalCenter
+               border.color: "lightgreen"
+               border.width: 3
+               Text {
+                   id: turnText
+                   color: "red"
+                   anchors.centerIn: parent
+                   text: qsTr(chessBoard.getTurn() + " turn")
+               }
+           }
+
+           // 模态遮罩层(游戏结束)
+           Rectangle {
+               id: gameEndMask
+               anchors.fill: parent
+               visible: false
+               z: -6
+               color: "transparent"
+
+               MouseArea {
+                   anchors.fill: parent
+                   onClicked: {
+                       gameEnd.visible = true
+                       // 跳转回主界面...
+                       manage.goBack(); // 返回上一页
+                       chessBoard.reset();
+                       gameEnd.visible = false
+                   }
+               }
+
+               // 游戏结束弹窗
+               MessageDialog {
+                   id: gameEnd
+                   title: "游戏结束"
+                   text: ""
+                   onAccepted: {
+                       console.log("end弹窗被接受");
+                       // 跳转回主界面...
+                       manage.goBack(); // 返回上一页
+                       chessBoard.reset();
+                   }
+               }
+           }
+
+           // 模态遮罩层(兵升变提示)
+           Rectangle {
+               id: promoteMask
+               anchors.fill: parent
+               visible: false
+               z: -6
+               color: "transparent"
+
+               MouseArea {
+                   anchors.fill: parent
+                   onClicked: {
+                       promote.visible = true
+                   }
+               }
+
+               // 晋升弹窗
+               Dialog {
+                   id: promote
+                   title: "兵升变"
+                   width: 250
+                   height: 350
+                   modal: true
+                   anchors.centerIn: parent
+
+                   Text {
+                       anchors.horizontalCenter: parent.horizontalCenter
+                       text: qsTr("必须晋升（强制)")
+                       color: "red"
+                   }
+
+                   spacing: 5
+
+                   GridLayout {
+                       columns: 2
+                       rows: 2
+                       anchors.centerIn: parent
+                       columnSpacing: 5
+                       rowSpacing: 5
+
+                       Button {
+                           id: queen
+                           text: qsTr("晋升成后")
+                           onClicked: {
+                               // console.log("promote queen");
+                               chessBoard.setPromotion("queen")
+                               chessBoard.changeType(page.toX, page.toY)
+                               promote.close();
+                               promoteMask.visible = false
+                           }
+                       }
+                       Button {
+                           id: rook
+                           text: qsTr("晋升成车")
+                           onClicked: {
+                               // console.log("promote rook");
+                               chessBoard.setPromotion("rook")
+                               chessBoard.changeType(page.toX, page.toY)
+                               promote.close();
+                               promoteMask.visible = false
+                           }
+                       }
+                       Button {
+                           id: knight
+                           text: qsTr("晋升成马")
+                           onClicked: {
+                               // console.log("promote knight");
+                               chessBoard.setPromotion("knight")
+                               chessBoard.changeType(page.toX, page.toY)
+                               promote.close();
+                               promoteMask.visible = false
+                           }
+                       }
+                       Button {
+                           id: bishop
+                           text: qsTr("晋升成象")
+                           onClicked: {
+                               // console.log("promote bishop");
+                               chessBoard.setPromotion("bishop")
+                               chessBoard.changeType(page.toX, page.toY)
+                               promote.close();
+                               promoteMask.visible = false
+                           }
+                       }
+                   }
+               }
+           }
+
+
+           Connections {
+               target: chessBoard
+               function onWhiteWin() {
+                   console.log("Received signal in QML, White Win");
+                   gameEndMask.visible = true
+                   gameEndMask.z = 999999
+                   gameEnd.text = "White Win!"
+                   gameEnd.visible = true
+               }
+               function onBlackWin() {
+                   console.log("Received signal in QML, Black Win");
+                   gameEndMask.visible = true
+                   gameEndMask.z = 999999
+                   gameEnd.text = "Black Win!"
+                   gameEnd.visible = true
+               }
+               function onPromote() {
+                   console.log("晋升弹窗提示")
+                   promoteMask.visible = true
+                   promoteMask.z = 999999
+                   promote.visible = true
+               }
+           }
 
            // 棋子
            Grid {

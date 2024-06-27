@@ -260,6 +260,7 @@ void Board::setWaitPlayer()
     } else
         turn = waitPlayer;
 }
+
 void Board::move(int fromX, int fromY, int toX, int toY)
 {
     QSharedPointer<Pieces> p, tmp;

@@ -40,6 +40,7 @@ public:
     // 移动
     Q_INVOKABLE void move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE QVector<int> possibleMoves(int x, int y);
+
     Q_INVOKABLE void setWhitePlayer();
     Q_INVOKABLE void setBlackPlayer();
     Q_INVOKABLE void setWaitPlayer();
