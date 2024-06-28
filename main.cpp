@@ -21,6 +21,10 @@ int main(int argc, char *argv[])
 
     Board chessBoard;
     engine.rootContext()->setContextProperty("chessBoard", &chessBoard);
+    Board chessBoard1;
+    engine.rootContext()->setContextProperty("chessBoard1", &chessBoard1);
+    Board chessBoard2;
+    engine.rootContext()->setContextProperty("chessBoard2", &chessBoard2);
 
     qmlRegisterType<MyNetWork>("MyNetWork", 1, 0, "Ipv4");
 

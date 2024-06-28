@@ -91,7 +91,8 @@ Item {
             property int num2: -1
             property int num3: -1
             property int num4: -1
-            text:num1+" "+num2+" "+num3+" "+num4
+             property int num5: 0
+            text:num1+" "+num2+" "+num3+" "+num4+" "+num5
         }
         // 将字符串分割成单个字符的数组
         function splitAndConvert(inputString) {
@@ -100,6 +101,7 @@ Item {
             _inToRecive.num2=numbers[1];
             _inToRecive.num3=numbers[2];
             _inToRecive.num4=numbers[3];
+            _inToRecive.num5=numbers[4];
         }
 
 
@@ -111,6 +113,7 @@ Item {
             property int num2: -1
             property int num3: -1
             property int num4: -1
+            property int num5: 0
         }
 
         // 返回
@@ -371,7 +374,6 @@ Item {
 
                         TapHandler {
                             id:taphandler
-
                             onTapped: {
                                 _black_page.clearColor(_black_page.fromX, _black_page.fromY)
                                 _black_page.toX = index % 8
@@ -388,9 +390,7 @@ Item {
                     }
 
                     TapHandler {
-                        id:taphandler1
                         onTapped: {
-                        console.log("tap1")
                         _black_page.clearColor(_black_page.fromX, _black_page.fromY)
                         _black_page.fromX = index % 8
                         _black_page.fromY = (index - _black_page.fromX) / 8

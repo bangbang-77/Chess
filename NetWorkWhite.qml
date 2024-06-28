@@ -92,7 +92,7 @@ Item {
                   property int num3: -1
                   property int num4: -1
                   property int num5: 0
-                  text:num1+" "+num2+" "+num3+" "+num4
+                  text:num1+" "+num2+" "+num3+" "+num4+" "+num5
               }
               function splitAndConvert(inputString) {
                       var numbers = inputString.split(" ")  // 将字符串分割成单个字符的数组
@@ -158,15 +158,18 @@ Item {
            // 显示可以走的位置
            function getMoves(x, y) {
                var movelist = chessBoard.possibleMoves(x, y);
-
-               for(var i = 0; i < movelist.length; i++) {
-                   console.log("可走位置：" + movelist[i]);
+               console.log("可走位置函数"+movelist.length)
+               for(var i = 0; i < movelist.length; i++)
+               {
+                   console.log("可走位置：" + movelist[i])
                    // rec.visible  = true
-                   if(gridRep.itemAt(movelist[i]).children.length > 0) {
+                   if(gridRep.itemAt(movelist[i]).children.length > 0)
+                   {
                        gridRep.itemAt(movelist[i]).children[1].visible = true
                        gridRep.itemAt(movelist[i]).children[1].z = 1
                    }
                }
+               console.log("函数完成")
            }
 
            // 清除可以走的位置
@@ -375,10 +378,7 @@ Item {
                            z: -1
 
                            TapHandler {
-                               id:taphandler
-
                                onTapped: {
-
                                    _white_page.clearColor(_white_page.fromX, _white_page.fromY)
                                    _white_page.toX = index % 8
                                    _white_page.toY = (index - _white_page.toX) / 8
@@ -394,15 +394,16 @@ Item {
                        }
 
                        TapHandler {
-                           id:taphandler1
                            onTapped: {
-                               console.log("tap1")
+
                                 _white_page.clearColor(_white_page.fromX, _white_page.fromY)
                                _white_page.fromX = index % 8
                                _white_page.fromY = (index - _white_page.fromX) / 8
                                 _inToSend.num1 = _white_page.fromX
                                 _inToSend.num2 = _white_page.fromY
+                               console.log("fromX:"+_white_page.fromX+" fromY:"+_white_page.fromY)
                                 _white_page.getMoves(_white_page.fromX, _white_page.fromY);
+                               console.log("tap1")
                            }
                        }
                    }

@@ -17,22 +17,6 @@ Item {
             onLeave: startLoader.opacity=0
         }
         Mode{
-            name:"netWorkBlack"
-            onEnter:{
-                onBack(function(){modes.set("start")})
-               netWorkBlackLoader.opacity=1
-            }
-            onLeave: netWorkBlackLoader.opacity=0
-        }
-        Mode{
-            name:"netWorkWhite"
-            onEnter:{
-                onBack(function(){modes.set("start")})
-                netWorkWhiteLoader.opacity=1
-            }
-            onLeave: netWorkWhiteLoader.opacity=0
-        }
-        Mode{
             name:"board"
             onEnter:{
                 onBack(function(){modes.set("start")})
@@ -120,30 +104,6 @@ Item {
                 }
             }
         }
-        Loader {
-            id: netWorkBlackLoader
-            anchors { fill: parent }
-            source: 'NetWorkBlack.qml'
-            active: opacity > 0
-            visible: status == Loader.Ready && opacity > 0
-
-            opacity: 0
-            // Behavior on opacity {
-            //     NumberAnimation { duration: 1500 }
-            // }
-        }
-        Loader {
-            id: netWorkWhiteLoader
-            anchors { fill: parent }
-            source: 'NetWorkWhite.qml'
-            active: opacity > 0
-            visible: status == Loader.Ready && opacity > 0
-
-            opacity: 0
-            // Behavior on opacity {
-            //     NumberAnimation { duration: 1500 }
-            // }
-        }
 
         Loader {
             id: helpLoader
@@ -202,7 +162,7 @@ Item {
     property var backQueue: []
     function goBack() {
         if(backQueue.length > 0) {
-            console.log('Popping from back queue') //¤
+            console.log('Popping from back queue')
             var func = backQueue.pop()
             var t = backQueue
             backQueue = t
@@ -210,7 +170,7 @@ Item {
         }
     }
     function onBack(func) {
-        console.log('Pushing to back queue') //¤
+        console.log('Pushing to back queue')
         backQueue.push(func)
         var t = backQueue
         backQueue = t
