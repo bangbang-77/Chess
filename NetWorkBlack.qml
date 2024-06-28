@@ -1,88 +1,126 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 import QtQuick.Dialogs
+import QtQuick.Layouts
 import MyNetWork 1.0
 import "."
-Item {
-
-    id:black
+Item{
+    id:board
     Page {
-        id:_black_page
+        id:page
         width: app.width
         height: app.height
         visible: true
-
-        //信息传递对象
-        Ipv4{
-            id:ip;
-            send: _inToSend.text;
-            onReciveChanged: {
-            _black_page.splitAndConvert(ip.recive);//处理接收的实参
-            console.log("ip4  "+ip.recive)
-                if(_inToRecive.num5===1){ chessBoard.regretChess()}
-                    else{
-            //移动
-                chessBoard.setWhitePlayer()
-                chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
-                chessBoard.setBlackPlayer()
-                }
-            }
-        }
-        //输入ip地址的对话框
-        Dialog {
-            id: ipDialog
-            title: "输入IPv4地址"
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            width: 300
-            height: 200
-            visible: false
-            anchors.centerIn: parent
-
-            ColumnLayout {
-                anchors.fill: parent
-                TextField {
-                    id: ipAddress
-                    Layout.fillWidth: true
-                    placeholderText: "请输入对方的IPv4地址..."
-                    onTextChanged: ipDialog.standardButton(Dialog.Ok).enabled = ipAddress.text.trim().length > 0//移除字符串前后的空白字符的方法
-                }
-            }
-
-            onAccepted: {
-                if (ipAddress.text.trim().length > 0) {
-                    ip.myip4 = ipAddress.text
-                    console.log(ip.myip4)
-                    chessBoard.setWaitPlayer()
-                    ipDialog.close()
-                }else{
-                    worryInfo.open()
-                }
-            }
-
-            onRejected: {
-                console.log("取消输入IP地址")
-                manage.goBack()
-            }
-        }
-        MessageDialog {
-            id: worryInfo
-            text: "输出不可为空！"
-            onAccepted: {
-                console.log("end弹窗被接受");
-                // 跳转回主界面...
-                manage.goBack(); // 返回上一页
-            }
-        }
-        Component.onCompleted: {
-            ipDialog.open()
-        }
+        title: qsTr("hello, world")
 
         property int fromX: -1
         property int fromY: -1
         property int toX: -1
         property int toY: -1
+        Ipv4{
+            id:ip
+            send: _inToSend.text
+            onReciveChanged: {
+                page.splitAndConvert(ip.recive)
+                console.log("ip4收到了  "+ip.recive)
+                if(_inToRecive.num1===-1)
+                    {console.log("已经被连接")}
+                else{
+                    if(_inToRecive.num5===1)//悔棋
+                        { chessBoard.regretChess()}
+                    else{//移动
+                    chessBoard.setWhitePlayer()
+                    chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
+                    chessBoard.setBlackPlayer()
+                    }
+                }
+            }
+        }
+        //
+        TextField {
+                id: _textField
+                width: 220
+                height: 50
+                z:2
+                placeholderText: "请输入对方的ipv4地址..."
+                anchors.centerIn: parent
 
+                // 添加一个按钮来触发获取文本的操作
+                Button {
+                    id: okButton
+                    text: "OK"
+                    anchors.top: _textField.bottom
+                    anchors.right: _textField.right
+                    onClicked: {
+                        ip.myip4=_textField.text
+                        console.log(ip.myip4)
+                        ip.sendMessage()
+                        chessBoard.setWaitPlayer()
+                        parent.visible=false
+                    }
+                }
+                Button {
+                    id: cancelButton
+                    text: "cancel"
+                    anchors.top: _textField.bottom
+                    anchors.left: _textField.left
+                    onClicked: {
+                        console.log(ip.send+"   "+ip.recive)
+                        manage.goBack()
+                        chessBoard.reset()
+
+                    }
+                }
+            }
+
+        Button {
+            id:back
+            text: "Back"
+            onClicked: saveOrNot.open()
+        }
+        Dialog {
+            id: saveOrNot
+            title: "进度缓存"
+
+            width: 300
+            height: 150
+            anchors.centerIn: parent
+
+            contentItem:
+                Column {
+                    spacing: 20
+                    Text {
+                        text: "你想要保存进度吗"
+                        width: parent.width
+                        color:"red"
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    Row {
+                        spacing: 10
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                    Button {
+                        text: "是的"
+                        width: 100
+                        height: 50
+                        onClicked: {
+                            manage.goBack()
+                        }
+                    }
+
+                    Button {
+                        text: "不是"
+                        width: 100
+                        height: 50
+                        onClicked: {
+                            manage.goBack()
+                            chessBoard.reset()
+                        }
+                    }
+                }
+            }
+        }
         //记录发送数据
         Text{
             id:_inToSend
@@ -94,17 +132,6 @@ Item {
              property int num5: 0
             text:num1+" "+num2+" "+num3+" "+num4+" "+num5
         }
-        // 将字符串分割成单个字符的数组
-        function splitAndConvert(inputString) {
-            var numbers = inputString.split(" ")
-            _inToRecive.num1=numbers[0];
-            _inToRecive.num2=numbers[1];
-            _inToRecive.num3=numbers[2];
-            _inToRecive.num4=numbers[3];
-            _inToRecive.num5=numbers[4];
-        }
-
-
         //记录处理后的接收数据
         Text {
             id: _inToRecive
@@ -115,17 +142,9 @@ Item {
             property int num4: -1
             property int num5: 0
         }
-
-        // 返回
-        Row{
-            Button {
-                text: "Back"
-                onClicked: manage.goBack() // 返回上一页
-            }
-        }
         // 棋盘
         Rectangle {
-            id: board
+            id: boardchess
             width: parent.width
             height: parent.width
             anchors.centerIn: parent
@@ -141,8 +160,8 @@ Item {
                     model: 8 * 8
 
                     Rectangle {
-                        width: board.width / 8
-                        height: board.height / 8
+                        width: boardchess.width / 8
+                        height: boardchess.height / 8
                         color: {
                             var cols = index % 8 //列
                             var rows = (index - cols) / 8 //行 (减去cols再除，得到整数)
@@ -161,25 +180,31 @@ Item {
                 console.log("可走位置：" + movelist[i]);
                 if(gridRep.itemAt(movelist[i]).children.length > 0) {
                     gridRep.itemAt(movelist[i]).children[1].visible = true
-                    gridRep.itemAt(movelist[i]).children[1].z = 1
+                    gridRep.itemAt(movelist[i]).children[1].z = 999999
                 }
             }
         }
-
         // 清除可以走的位置
         function clearColor(x, y) {
             var movelist = chessBoard.possibleMoves(x, y);
 
             for(var i = 0; i < movelist.length; i++) {
                 console.log("清除color：" + movelist[i]);
-                // rec.visible = false
                 if(gridRep.itemAt(movelist[i]).children.length > 0) {
                     gridRep.itemAt(movelist[i]).children[1].visible = false
                     gridRep.itemAt(movelist[i]).children[1].z = -1
                 }
             }
         }
-
+        // 将字符串分割成单个字符的数组
+        function splitAndConvert(inputString) {
+            var numbers = inputString.split(" ")
+            _inToRecive.num1=numbers[0];
+            _inToRecive.num2=numbers[1];
+            _inToRecive.num3=numbers[2];
+            _inToRecive.num4=numbers[3];
+            _inToRecive.num5=numbers[4];
+        }
 
         Rectangle {
             width: 100
@@ -340,27 +365,27 @@ Item {
             }
         }
 
-
+        // 棋子
         Grid {
             id: grid
             rows: 8
             columns: 8
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
+
             Repeater {
                 id: gridRep
                 model: chessBoard
 
                 Image {
                     id: girdImg
-                    width: board.width / 8
-                    height: board.height / 8
+                    width: boardchess.width / 8
+                    height: boardchess.height / 8
                     fillMode: Image.PreserveAspectFit
                     source: model.pieceImg !== undefined ? model.pieceImg : ""
 
-
                     Text {
-                        z: 1
+                        z: 999
                         text: index
                     }
 
@@ -373,40 +398,48 @@ Item {
                         z: -1
 
                         TapHandler {
-                            id:taphandler
+                            // target: rec
                             onTapped: {
-                                _black_page.clearColor(_black_page.fromX, _black_page.fromY)
-                                _black_page.toX = index % 8
-                                _black_page.toY = (index - _black_page.toX) / 8
-                                _inToSend.num3 = _black_page.toX
-                                _inToSend.num4 = _black_page.toY
-                                console.log(".fromX:" + _black_page.fromX + " fromY:" + _black_page.fromY+" toX:"+_black_page.toX+" toY:"+_black_page.toY);
-                                chessBoard.move(_black_page.fromX, _black_page.fromY, _black_page.toX, _black_page.toY)
+                                page.clearColor(page.fromX, page.fromY)
+                                page.toX = index % 8
+                                page.toY = (index - page.toX) / 8
+                                _inToSend.num3=page.toX
+                                _inToSend.num4=page.toY
+                                console.log("fromX:" + page.fromX + " fromY:" + page.fromY+" toX:"+page.toX+" toY:"+page.toY)
+                                chessBoard.move(page.fromX, page.fromY, page.toX, page.toY)
                                 ip.sendMessage()
                                 console.log("发送："+ip.send)
                                 chessBoard.setWaitPlayer()
+                                turnText.text = qsTr(chessBoard.getTurn() + " turn")
+                                page.fromX = -1
+                                page.fromY = -1
                             }
                         }
                     }
 
                     TapHandler {
+                        // target: girdImg
                         onTapped: {
-                        _black_page.clearColor(_black_page.fromX, _black_page.fromY)
-                        _black_page.fromX = index % 8
-                        _black_page.fromY = (index - _black_page.fromX) / 8
-                        _inToSend.num1 = _black_page.fromX
-                        _inToSend.num2 = _black_page.fromY
-                        _black_page.getMoves(_black_page.fromX, _black_page.fromY);
+                            page.clearColor(page.fromX, page.fromY)
+                            page.fromX = index % 8
+                            page.fromY = (index - page.fromX) / 8
+                            console.log("x:" + page.fromX + " y:" + page.fromY);
+                            if(model.pieceImg !== undefined) {
+                                _inToSend.num1=page.fromX
+                                _inToSend.num2=page.fromY
+                                page.getMoves(page.fromX, page.fromY);
+                            }
                         }
                     }
                 }
             }
         }
+        //悔棋按键
         Button {
             id: regret
             text: "Regtet"
             anchors.bottom: parent.bottom
-            onClicked:{
+            onClicked: {
                 chessBoard.regretChess()
                 _inToSend.num5=1
                 ip.sendMessage()

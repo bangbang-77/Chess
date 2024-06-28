@@ -33,20 +33,20 @@ Item {
             onLeave: helpLoader.opacity=0
         }
         Mode{
-            name:"black"
-            onEnter:{
-                onBack(function(){modes.set("start")})
-                blackLoader.opacity=1
-            }
-            onLeave: blackLoader.opacity=0
-        }
-        Mode{
             name:"white"
             onEnter:{
                 onBack(function(){modes.set("start")})
                 whiteLoader.opacity=1
             }
             onLeave: whiteLoader.opacity=0
+        }
+        Mode{
+            name:"black"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                blackLoader.opacity=1
+            }
+            onLeave: blackLoader.opacity=0
         }
         Mode{
             name:"setting"
@@ -75,9 +75,9 @@ Item {
             id: startLoader
             anchors { fill: parent }
             source: 'Start.qml'
-            active: opacity > 0
+            active: opacity > 0//透明度大于0才会加载
 
-            visible: status == Loader.Ready && opacity > 0
+            visible: status == Loader.Ready && opacity > 0//只有在加载和透明度大于0时可见
 
             opacity: 0
         }
@@ -101,6 +101,7 @@ Item {
             onOpacityChanged: {
                 if (opacity === 1 && boardAnimation.from === 0) {
                         boardAnimation.running = true; // 仅在从 0 变为 1 时启动动画
+                    console.log("加载单机")
                 }
             }
         }

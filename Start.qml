@@ -38,6 +38,7 @@ Item{
         Grid {
             rows: 2
             columns: 2
+        //StackView{
             anchors.centerIn: parent
             spacing: 20
             Button {

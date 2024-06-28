@@ -6,7 +6,7 @@ import "."
 ApplicationWindow {
     property alias app: application
 
-    id: application
+    id: application//2
     title: qsTr('Chess')
 
     visible: false
@@ -77,13 +77,13 @@ ApplicationWindow {
             }
         }
     }
-
+    //1
     Timer {
         id: startTimer
         interval: 2000
         onTriggered: {
             console.log("start!")
-            application.visible = true
+            application.visible = true//2
             back.opacity = 1
             logo.opacity = 1 // logo 显示
             text.opacity = 1 // text 显示
@@ -101,6 +101,6 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        startTimer.start()
+        startTimer.start()//1
     }
 }
