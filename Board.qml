@@ -5,21 +5,20 @@ import QtQuick.Layouts
 import "."
 Item{
     id:board
+
+    property color lightcolor: manage.lightcolor
+    property color darkcolor: manage.darkcolor
+
     Page {
         id:page
         width: app.width
         height: app.height
         visible: true
         title: qsTr("hello, world")
-        Button {
-            id:back
-            text: "Back"
-            onClicked: saveOrNot.open()
-        }
+
+        //是否选择保存进度
         Dialog {
             id: saveOrNot
-            title: "进度缓存"
-
             width: 300
             height: 150
             anchors.centerIn: parent
@@ -83,7 +82,7 @@ Item{
                         color: {
                             var cols = index % 8 //列
                             var rows = (index - cols) / 8 //行 (减去cols再除，得到整数)
-                            return ((rows + cols) % 2 === 0) ? "white" : "gray"
+                            return ((rows + cols) % 2 === 0) ? lightcolor : darkcolor
                         }
                     }
                 }
@@ -122,14 +121,15 @@ Item{
         }
 
         Rectangle {
-            width: 100
+            width: app.width/3
             height: 50
             anchors.horizontalCenter: parent.horizontalCenter
-            border.color: "lightgreen"
+            border.color: darkcolor
             border.width: 3
+            radius: 25
             Text {
                 id: turnText
-                color: "red"
+                color: darkcolor
                 anchors.centerIn: parent
                 text: qsTr(chessBoard.getTurn() + " turn")
             }
@@ -341,12 +341,38 @@ Item{
                 }
             }
         }
+        footer:
+            ToolBar {
+                height: 55
+                background:
+                    Rectangle {
+                        color: darkcolor
+                    }
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 55
 
-        Button {
-            id: regret
-            text: "Regtet"
-            anchors.bottom: parent.bottom
-            onClicked: chessBoard.regretChess();
-        }
+                        ToolButton {
+                            text: qsTr("退出")
+                            onClicked: saveOrNot.open()
+                        }
+
+                        ToolButton {
+                            text: qsTr("重开")
+                            onClicked: chessBoard.reset()
+                        }
+
+                        ToolButton {
+                            id: regret
+                            text: qsTr("撤回")
+                            //撤回操作
+                            onClicked: chessBoard.regretChess();
+                        }
+                        ToolButton {
+                            text: qsTr("帮助")
+                            onClicked: manage.modes.set('help')
+                        }
+                    }
+            }
     }
 }

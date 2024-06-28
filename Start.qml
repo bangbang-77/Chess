@@ -34,65 +34,79 @@ Item{
             }
             onClicked: manage.modes.set('setting')
         }
-
-        Grid {
-            rows: 2
-            columns: 2
-        //StackView{
+        Column {
             anchors.centerIn: parent
-            spacing: 20
-            Button {
-                text: "双人联机对战"
-                width: 150
-                height: 100
-                onClicked: chooseColor.open()
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "gray"
-                    opacity: 0.5
-                    radius: 5
-                }
+            spacing: 80
+
+            Image {
+                source: "qrc:/img/Title.png"
+                fillMode: Image.PreserveAspectFit
+                width: parent.width
+                height: 150
             }
-            Button {
-                text: "双人单机对战"
-                width: 150
-                height: 100
-                onClicked: manage.modes.set('board')
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "gray"
-                    opacity: 0.5
-                    radius: 5
+
+            Grid {
+                rows: 2
+                columns: 2
+                spacing: 20
+
+                Button {
+                    text: "双人联机对战"
+                    width: 150
+                    height: 100
+                    onClicked: chooseColor.open()
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: "gray"
+                        opacity: 0.5
+                        radius: 5
+                    }
                 }
-            }
-            Button {
-                text: "开发者名单"
-                width: 150
-                height: 100
-                onClicked: manage.modes.set('developer')
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "gray"
-                    opacity: 0.5
-                    radius: 5
+
+                Button {
+                    text: "双人单机对战"
+                    width: 150
+                    height: 100
+                    onClicked: manage.modes.set('board')
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: "gray"
+                        opacity: 0.5
+                        radius: 5
+                    }
                 }
-            }
-            Button {
-                text: "退出"
-                width: 150
-                height: 100
-                onClicked: manage.modes.set('quit')
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "gray"
-                    opacity: 0.5
-                    radius: 5
+
+                Button {
+                    text: "开发者名单"
+                    width: 150
+                    height: 100
+                    onClicked: manage.modes.set('developer')
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: "gray"
+                        opacity: 0.5
+                        radius: 5
+                    }
+                }
+
+                Button {
+                    text: "退出"
+                    width: 150
+                    height: 100
+                    onClicked: manage.modes.set('quit')
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: "gray"
+                        opacity: 0.5
+                        radius: 5
+                    }
                 }
             }
         }
+
+
         Dialog {
             id: chooseColor
-            title: "选择颜色"
             width: 300
             height: 150
             anchors.centerIn: parent

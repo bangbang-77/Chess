@@ -5,6 +5,8 @@ Item {
     id: manage
 
     property alias modes: modes
+    property color lightcolor: "#FFFFFF"
+    property color darkcolor: "#808080"
 
     Modes{
         id:modes
@@ -16,6 +18,7 @@ Item {
             }
             onLeave: startLoader.opacity=0
         }
+
         Mode{
             name:"board"
             onEnter:{
@@ -33,20 +36,20 @@ Item {
             onLeave: helpLoader.opacity=0
         }
         Mode{
-            name:"white"
-            onEnter:{
-                onBack(function(){modes.set("start")})
-                whiteLoader.opacity=1
-            }
-            onLeave: whiteLoader.opacity=0
-        }
-        Mode{
             name:"black"
             onEnter:{
                 onBack(function(){modes.set("start")})
                 blackLoader.opacity=1
             }
             onLeave: blackLoader.opacity=0
+        }
+        Mode{
+            name:"white"
+            onEnter:{
+                onBack(function(){modes.set("start")})
+                whiteLoader.opacity=1
+            }
+            onLeave: whiteLoader.opacity=0
         }
         Mode{
             name:"setting"
@@ -75,9 +78,9 @@ Item {
             id: startLoader
             anchors { fill: parent }
             source: 'Start.qml'
-            active: opacity > 0//透明度大于0才会加载
+            active: opacity > 0
 
-            visible: status == Loader.Ready && opacity > 0//只有在加载和透明度大于0时可见
+            visible: status == Loader.Ready && opacity > 0
 
             opacity: 0
         }
@@ -101,7 +104,6 @@ Item {
             onOpacityChanged: {
                 if (opacity === 1 && boardAnimation.from === 0) {
                         boardAnimation.running = true; // 仅在从 0 变为 1 时启动动画
-                    console.log("加载单机")
                 }
             }
         }
@@ -148,6 +150,15 @@ Item {
             visible: status == Loader.Ready && opacity > 0
 
             opacity: 0
+            onLoaded: {
+                //发生颜色变化将变化值传递到这里赋值，然后新的值传递到board实现颜色改变
+                if (item) {
+                    item.lightcolorChanged.connect(function() {
+                        manage.lightcolor = item.lightcolor})
+                    item.darkcolorChanged.connect(function() {
+                        manage.darkcolor = item.darkcolor})
+                }
+            }
         }
         Loader {
             id: developLoader
@@ -163,7 +174,7 @@ Item {
     property var backQueue: []
     function goBack() {
         if(backQueue.length > 0) {
-            console.log('Popping from back queue')
+            console.log('Popping from back queue') //¤
             var func = backQueue.pop()
             var t = backQueue
             backQueue = t
@@ -171,7 +182,7 @@ Item {
         }
     }
     function onBack(func) {
-        console.log('Pushing to back queue')
+        console.log('Pushing to back queue') //¤
         backQueue.push(func)
         var t = backQueue
         backQueue = t
