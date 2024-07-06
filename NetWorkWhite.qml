@@ -29,20 +29,40 @@ Item {
             onReciveChanged: {
                 page.splitAndConvert(ip.recive)
                 console.log("ip4收到了  "+ip.recive)
-                if(_inToRecive.num1===-1)
-                    {console.log("已经被连接")}
+                if(_inToRecive.num1===-1)//第一次接收,拒绝连接
+                    { manage.goBack();chessBoard.reset()}
+                else if(_inToRecive.num1===-2)//第一次接收，成功连接
+                    {
+                    console.log("已经被连接")
+                    waitLink.visible=false
+                    }
                 else{
                     if(_inToRecive.num5===1)//悔棋
                         { chessBoard.regretChess()}
+                    else if(_inToRecive.num5===2)//重开
+                        {chessBoard.reset()}
+                    else if(_inToRecive.num5===3)//退出
+                        { manage.goBack();chessBoard.reset()}
                     else{//移动
                     chessBoard.setBlackPlayer()
                     chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
                     chessBoard.setWhitePlayer()
+                         turnText.text = qsTr(chessBoard.getTurn() + " turn")
                     }
                 }
             }
         }
-        //
+        //等待ip连接
+        Text {
+            id:waitLink
+
+            width: 220
+            height: 50
+            visible:false
+            anchors.centerIn: parent
+            text: qsTr("等待黑方连接中...")
+        }
+        //输入对方ip
         TextField {
                 id: _textField
                 width: 220
@@ -59,9 +79,13 @@ Item {
                     anchors.right: _textField.right
                     onClicked: {
                         ip.myip4=_textField.text
+                        _inToSend.num2=-2
                         console.log(ip.myip4)
                         ip.sendMessage()
                         parent.visible=false
+                        waitLink.visible=true
+                        if(_inToRecive.num1===-2)
+                        waitLink.visible=false
                     }
                 }
                 Button {
@@ -72,55 +96,10 @@ Item {
                     onClicked: {
                         console.log(ip.send+"   "+ip.recive)
                         manage.goBack()
-                        chessBoard.reset()
-
                     }
                 }
             }
 
-        Dialog {
-            id: saveOrNot
-            title: "进度缓存"
-
-            width: 300
-            height: 150
-            anchors.centerIn: parent
-
-            contentItem:
-                Column {
-                    spacing: 20
-                    Text {
-                        text: "你想要保存进度吗"
-                        width: parent.width
-                        color:"red"
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-
-                    Row {
-                        spacing: 10
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                    Button {
-                        text: "是的"
-                        width: 100
-                        height: 50
-                        onClicked: {
-                            manage.goBack()
-                        }
-                    }
-
-                    Button {
-                        text: "不是"
-                        width: 100
-                        height: 50
-                        onClicked: {
-                            manage.goBack()
-                            chessBoard.reset()
-                        }
-                    }
-                }
-            }
-        }
         //记录发送数据
         Text{
             id:_inToSend
@@ -448,12 +427,23 @@ Item {
 
                         ToolButton {
                             text: qsTr("退出")
-                            onClicked: saveOrNot.open()
+                            onClicked: {
+                                _inToSend.num5=3
+                                ip.sendMessage()
+                                _inToSend.num5=0
+                                manage.goBack()
+                                chessBoard.reset()
+                            }
                         }
 
                         ToolButton {
                             text: qsTr("重开")
-                            onClicked: chessBoard.reset()
+                            onClicked: {
+                                chessBoard.reset()
+                                _inToSend.num5=2
+                                ip.sendMessage()
+                                _inToSend.num5=0
+                            }
                         }
 
                         ToolButton {
