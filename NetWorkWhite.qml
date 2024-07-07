@@ -30,7 +30,7 @@ Item {
                 page.splitAndConvert(ip.recive)
                 console.log("ip4收到了  "+ip.recive)
                 if(_inToRecive.num1===-1)//第一次接收,拒绝连接
-                    { manage.goBack();chessBoard.reset()}
+                    { manage.goBack();netChessBoard.reset()}
                 else if(_inToRecive.num1===-2)//第一次接收，成功连接
                     {
                     console.log("已经被连接")
@@ -38,67 +38,89 @@ Item {
                     }
                 else{
                     if(_inToRecive.num5===1)//悔棋
-                        { chessBoard.regretChess()}
+                        { netChessBoard.regretChess()}
                     else if(_inToRecive.num5===2)//重开
-                        {chessBoard.reset()}
+                        {netChessBoard.reset()}
                     else if(_inToRecive.num5===3)//退出
-                        { manage.goBack();chessBoard.reset()}
+                        { manage.goBack();netChessBoard.reset()}
                     else{//移动
-                    chessBoard.setBlackPlayer()
-                    chessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
-                    chessBoard.setWhitePlayer()
-                         turnText.text = qsTr(chessBoard.getTurn() + " turn")
+                    netChessBoard.setBlackPlayer()
+                    netChessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
+                    netChessBoard.setWhitePlayer()
+                         turnText.text = qsTr(netChessBoard.getTurn() + " turn")
                     }
                 }
             }
         }
         //等待ip连接
-        Text {
+        Dialog{
             id:waitLink
 
-            width: 220
-            height: 50
             visible:false
+            width: parent.width
+            height: parent.height
             anchors.centerIn: parent
-            text: qsTr("等待黑方连接中...")
+            Image {
+                id: waitpic
+                source: "qrc:/img/wait.png"
+                anchors.fill: parent
+            }
+            modal: true
+            Text {
+                anchors.centerIn: parent
+                text: qsTr("等待黑方连接中...")
+            }
         }
         //输入对方ip
-        TextField {
-                id: _textField
-                width: 220
-                height: 50
-                z:2
-                placeholderText: "请输入对方的ipv4地址..."
-                anchors.centerIn: parent
-
-                // 添加一个按钮来触发获取文本的操作
-                Button {
-                    id: okButton
-                    text: "OK"
-                    anchors.top: _textField.bottom
-                    anchors.right: _textField.right
-                    onClicked: {
-                        ip.myip4=_textField.text
-                        _inToSend.num2=-2
-                        console.log(ip.myip4)
-                        ip.sendMessage()
-                        parent.visible=false
-                        waitLink.visible=true
-                        if(_inToRecive.num1===-2)
-                        waitLink.visible=false
-                    }
-                }
-                Button {
-                    id: cancelButton
-                    text: "cancel"
-                    anchors.top: _textField.bottom
-                    anchors.left: _textField.left
-                    onClicked: {
-                        console.log(ip.send+"   "+ip.recive)
-                        manage.goBack()
-                    }
-                }
+        Dialog{
+            id: importIp
+            width: parent.width
+            height: parent.height
+            visible: true
+            Image {
+                id: textpoc
+                source: "qrc:/img/link.webp"
+                anchors.fill:parent
             }
+            TextField {
+                    id: _textField
+                    width: 220
+                    height: 50
+                    z:2
+                    placeholderText: "请输入对方的ipv4地址..."
+                    anchors.centerIn: parent
+
+                    // 添加一个按钮来触发获取文本的操作
+                    Button {
+                        id: okButton
+                        text: "OK"
+                        anchors.top: _textField.bottom
+                        anchors.right: _textField.right
+                        onClicked: {
+                            ip.myip4=_textField.text
+                            _inToSend.num2=-2
+                            console.log(ip.myip4)
+                            ip.sendMessage()
+                            importIp.visible=false
+                            waitLink.visible=true
+                            if(_inToRecive.num1===-2)
+                            waitLink.visible=false
+                            boardchess.visible=true
+                            grid.visible=true
+                        }
+                    }
+                    Button {
+                        id: cancelButton
+                        text: "cancel"
+                        anchors.top: _textField.bottom
+                        anchors.left: _textField.left
+                        onClicked: {
+                            console.log(ip.send+"   "+ip.recive)
+                            manage.goBack()
+                        }
+                    }
+                }
+        }
 
         //记录发送数据
         Text{
@@ -127,6 +149,7 @@ Item {
             width: parent.width
             height: parent.width
             anchors.centerIn: parent
+            visible: false
             z: -1
 
             Grid {
@@ -153,7 +176,7 @@ Item {
 
         // 显示可以走的位置
         function getMoves(x, y) {
-            var movelist = chessBoard.possibleMoves(x, y);
+            var movelist = netChessBoard.possibleMoves(x, y);
 
             for(var i = 0; i < movelist.length; i++) {
                 console.log("可走位置：" + movelist[i]);
@@ -165,7 +188,7 @@ Item {
         }
         // 清除可以走的位置
         function clearColor(x, y) {
-            var movelist = chessBoard.possibleMoves(x, y);
+            var movelist = netChessBoard.possibleMoves(x, y);
 
             for(var i = 0; i < movelist.length; i++) {
                 console.log("清除color：" + movelist[i]);
@@ -196,7 +219,7 @@ Item {
                    id: turnText
                    color: "red"
                    anchors.centerIn: parent
-                   text: qsTr(chessBoard.getTurn() + " turn")
+                   text: qsTr(netChessBoard.getTurn() + " turn")
                }
            }
 
@@ -214,7 +237,7 @@ Item {
                        gameEnd.visible = true
                        // 跳转回主界面...
                        manage.goBack(); // 返回上一页
-                       chessBoard.reset();
+                       netChessBoard.reset();
                        gameEnd.visible = false
                    }
                }
@@ -228,7 +251,7 @@ Item {
                        console.log("end弹窗被接受");
                        // 跳转回主界面...
                        manage.goBack(); // 返回上一页
-                       chessBoard.reset();
+                       netChessBoard.reset();
                    }
                }
            }
@@ -277,8 +300,8 @@ Item {
                            text: qsTr("晋升成后")
                            onClicked: {
                                // console.log("promote queen");
-                               chessBoard.setPromotion("queen")
-                               chessBoard.changeType(page.toX, page.toY)
+                               netChessBoard.setPromotion("queen")
+                               netChessBoard.changeType(page.toX, page.toY)
                                promote.close();
                                promoteMask.visible = false
                            }
@@ -288,8 +311,8 @@ Item {
                            text: qsTr("晋升成车")
                            onClicked: {
                                // console.log("promote rook");
-                               chessBoard.setPromotion("rook")
-                               chessBoard.changeType(page.toX, page.toY)
+                               netChessBoard.setPromotion("rook")
+                               netChessBoard.changeType(page.toX, page.toY)
                                promote.close();
                                promoteMask.visible = false
                            }
@@ -299,8 +322,8 @@ Item {
                            text: qsTr("晋升成马")
                            onClicked: {
                                // console.log("promote knight");
-                               chessBoard.setPromotion("knight")
-                               chessBoard.changeType(page.toX, page.toY)
+                               netChessBoard.setPromotion("knight")
+                               netChessBoard.changeType(page.toX, page.toY)
                                promote.close();
                                promoteMask.visible = false
                            }
@@ -310,8 +333,8 @@ Item {
                            text: qsTr("晋升成象")
                            onClicked: {
                                // console.log("promote bishop");
-                               chessBoard.setPromotion("bishop")
-                               chessBoard.changeType(page.toX, page.toY)
+                               netChessBoard.setPromotion("bishop")
+                               netChessBoard.changeType(page.toX, page.toY)
                                promote.close();
                                promoteMask.visible = false
                            }
@@ -322,7 +345,7 @@ Item {
 
 
            Connections {
-               target: chessBoard
+               target: netChessBoard
                function onWhiteWin() {
                    console.log("Received signal in QML, White Win");
                    gameEndMask.visible = true
@@ -352,10 +375,11 @@ Item {
             columns: 8
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
+            visible: false
 
             Repeater {
                 id: gridRep
-                model: chessBoard
+                model: netChessBoard
 
                 Image {
                     id: girdImg
@@ -386,11 +410,11 @@ Item {
                                 _inToSend.num3=page.toX
                                 _inToSend.num4=page.toY
                                 console.log("fromX:" + page.fromX + " fromY:" + page.fromY+" toX:"+page.toX+" toY:"+page.toY)
-                                chessBoard.move(page.fromX, page.fromY, page.toX, page.toY)
+                                netChessBoard.move(page.fromX, page.fromY, page.toX, page.toY)
                                 ip.sendMessage()
                                 console.log("发送："+ip.send)
-                                chessBoard.setWaitPlayer()
-                                turnText.text = qsTr(chessBoard.getTurn() + " turn")
+                                netChessBoard.setWaitPlayer()
+                                turnText.text = qsTr(netChessBoard.getTurn() + " turn")
                                 page.fromX = -1
                                 page.fromY = -1
                             }
@@ -432,14 +456,14 @@ Item {
                                 ip.sendMessage()
                                 _inToSend.num5=0
                                 manage.goBack()
-                                chessBoard.reset()
+                                netChessBoard.reset()
                             }
                         }
 
                         ToolButton {
                             text: qsTr("重开")
                             onClicked: {
-                                chessBoard.reset()
+                                netChessBoard.reset()
                                 _inToSend.num5=2
                                 ip.sendMessage()
                                 _inToSend.num5=0
@@ -451,7 +475,7 @@ Item {
                             text: qsTr("撤回")
                             //撤回操作
                             onClicked:{
-                                chessBoard.regretChess()
+                                netChessBoard.regretChess()
                                 _inToSend.num5=1
                                 ip.sendMessage()
                                 _inToSend.num5=0

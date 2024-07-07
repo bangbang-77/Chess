@@ -34,7 +34,7 @@ QString Board::getTurn()
         return "black";
     }
 
-    return "";
+    return "wait";
 }
 
 void Board::setPromotion(QString promotion)

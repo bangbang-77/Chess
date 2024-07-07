@@ -21,5 +21,7 @@
         <file>img/queen-white.svg</file>
         <file>img/rook-black.svg</file>
         <file>img/rook-white.svg</file>
+        <file>img/wait.png</file>
+        <file>img/link.webp</file>
     </qresource>
 </RCC>

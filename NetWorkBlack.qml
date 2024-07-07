@@ -34,7 +34,7 @@ Item {
                 else if(_inToRecive.num2===-2)//第一次接收，成功连接
                     {
                     console.log("已经被连接")
-                    waitLink.visible=false
+                    waitLink.open()
                     }
                 else{
                     if(_inToRecive.num5===1)//悔棋
@@ -53,52 +53,79 @@ Item {
             }
         }
         //等待ip连接
-        Text {
+        Dialog{
             id:waitLink
 
-            width: 220
-            height: 50
             visible:false
+            width: parent.width
+            height: parent.height
             anchors.centerIn: parent
-            text: qsTr("等待白方连接中...")
-        }
-        //输入对方ip
-        TextField {
-                id: _textField
-                width: 220
-                height: 50
-                z:2
-                placeholderText: "请输入对方的ipv4地址..."
-                anchors.centerIn: parent
-                // 添加一个按钮来触发获取文本的操作
-                Button {
-                    id: okButton
-                    text: "OK"
-                    anchors.top: _textField.bottom
-                    anchors.right: _textField.right
-                    onClicked: {
-                        ip.myip4=_textField.text
-                        console.log(ip.myip4)
-                        _inToSend.num1=-2
-                        ip.sendMessage()
-                        chessBoard.setWaitPlayer()
-                        parent.visible=false
-                        waitLink.visible=true
-                        if(_inToRecive.num2===-2)
-                            waitLink.visible=false
-                    }
-                }
-                Button {
-                    id: cancelButton
-                    text: "cancel"
-                    anchors.top: _textField.bottom
-                    anchors.left: _textField.left
-                    onClicked: {
-                        console.log(ip.send+"   "+ip.recive)
-                        manage.goBack()
-                    }
-                }
+            Image {
+                id: waitpic
+                source: "qrc:/img/wait.png"
+                anchors.fill: parent
             }
+            modal: true
+            Text {
+                anchors.centerIn: parent
+                text: qsTr("等待白方连接中...")
+            }
+        }
+
+
+        //输入对方ip
+        Dialog{
+            id: importIp
+            width: parent.width
+            height: parent.height
+            visible: true
+            Image {
+                id: textpoc
+                source: "qrc:/img/link.webp"
+                anchors.fill:parent
+            }
+            TextField {
+                    id: _textField
+                    width: 220
+                    height: 50
+                    z:2
+                    placeholderText: "请输入对方的ipv4地址..."
+                    anchors.centerIn: parent
+
+                    Component.onCompleted: _textField.forceActiveFocus()
+                    // 添加一个按钮来触发获取文本的操作
+                    Button {
+                        id: okButton
+                        text: "OK"
+                        anchors.top: _textField.bottom
+                        anchors.right: _textField.right
+                        onClicked: {
+                            ip.myip4=_textField.text
+                            console.log(ip.myip4)
+                            _inToSend.num1=-2
+                            ip.sendMessage()
+                            chessBoard.setWaitPlayer()
+                            importIp.visible=false
+                            waitLink.open()
+                            if(_inToRecive.num2===-2)
+                                waitLink.close()
+                            boardchess.visible=true
+                            grid.visible=true
+                        }
+                    }
+                    Button {
+                        id: cancelButton
+                        text: "cancel"
+                        anchors.top: _textField.bottom
+                        anchors.left: _textField.left
+                        onClicked: {
+                            console.log(ip.send+"   "+ip.recive)
+                            manage.goBack()
+                        }
+                    }
+                }
+
+        }
         //记录发送数据
         Text{
             id:_inToSend
@@ -126,6 +153,7 @@ Item {
             width: parent.width
             height: parent.width
             anchors.centerIn: parent
+            visible: false
             z: -1
 
             Grid {
@@ -351,7 +379,7 @@ Item {
             columns: 8
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-
+            visible: false
             Repeater {
                 id: gridRep
                 model: chessBoard
@@ -364,7 +392,7 @@ Item {
                     source: model.pieceImg !== undefined ? model.pieceImg : ""
 
                     Text {
-                        z: 999
+                        z: 1
                         text: index
                     }
 
