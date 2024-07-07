@@ -119,7 +119,6 @@ QVector<QSharedPointer<Pieces>> Board::initPieces()
            QSharedPointer<Pieces>{new Pawn{5, 1, Pieces::Black, 13}},
            QSharedPointer<Pieces>{new Pawn{6, 1, Pieces::Black, 14}},
            QSharedPointer<Pieces>{new Pawn{7, 1, Pieces::Black, 15}},
-
            // 白
            QSharedPointer<Pieces>{new Pawn{0, 6, Pieces::White, 16}},
            QSharedPointer<Pieces>{new Pawn{1, 6, Pieces::White, 17}},
@@ -474,8 +473,8 @@ void Board::move(int fromX, int fromY, int toX, int toY)
     p->setY(toY);
 
     for (int i = 0; i < m_record.length(); ++i) {
-        qDebug() << i << "m_record[i]->x(): " << m_record[i]->x();
-        qDebug() << i << "m_record[i]->y(): " << m_record[i]->y();
+        qDebug() << i << "m_record[i]->x(): " << m_record[i]->x()
+                 << "    m_record[i]->y(): " << m_record[i]->y();
     }
 
     if (turn == WhitePlayer) {
@@ -1242,7 +1241,7 @@ QVector<int> Board::possibleMoves(int x, int y)
 void Board::regretChess()
 {
     QSharedPointer<Pieces> p, tmp;
-    int i;
+    int i, j;
 
     if (m_record.length() < 1) {
         return;
@@ -1255,7 +1254,7 @@ void Board::regretChess()
             // qDebug() << "m_record.last()->y():" << m_record.last()->y();
             // qDebug() << "p->x():" << p->x();
             // qDebug() << "p->y():" << p->y();
-            qDebug() << "悔棋---该棋子在m_pieces[i]里的索引为i: " << i << "id: " << p->id();
+            // qDebug() << "悔棋---该棋子在m_pieces[i]里的索引为i: " << i << "id: " << p->id();
             break; // 找到当前棋子
         }
     }
@@ -1360,7 +1359,7 @@ void Board::regretChess()
     // qDebug() << "更新回退........";
 
     m_record.pop_back(); // 移除最后一条记录
-    qDebug() << "i: " << i << "  p->id(): " << p->id();
+    qDebug() << "悔棋---该棋子在m_pieces[i]里的索引为i: " << i << "id: " << p->id();
     qDebug() << "m_record.length(): " << m_record.length();
     qDebug() << "m_pieces.length(): " << m_pieces.length();
 }

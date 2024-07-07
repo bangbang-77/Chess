@@ -41,8 +41,10 @@ public:
     // 移动
     Q_INVOKABLE void move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE QVector<int> possibleMoves(int x, int y);
+
     //悔棋
     Q_INVOKABLE void regretChess();
+
     //设置轮次（主要用于联机）
     Q_INVOKABLE void setWhitePlayer();
     Q_INVOKABLE void setBlackPlayer();
