@@ -3,7 +3,6 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import MyNetWork 1.0
-import "."
 
 Item {
 
@@ -185,19 +184,20 @@ Item {
         }
 
 
-           Rectangle {
-               width: 100
-               height: 50
-               anchors.horizontalCenter: parent.horizontalCenter
-               border.color: "lightgreen"
-               border.width: 3
-               Text {
-                   id: turnText
-                   color: "red"
-                   anchors.centerIn: parent
-                   text: qsTr(chessBoard.getTurn() + " turn")
-               }
-           }
+        Rectangle {
+            width: app.width/3
+            height: 50
+            anchors.horizontalCenter: parent.horizontalCenter
+            border.color: darkcolor
+            border.width: 3
+            radius: 25
+            Text {
+                id: turnText
+                color: darkcolor
+                anchors.centerIn: parent
+                text: qsTr(chessBoard.getTurn() + " turn")
+            }
+        }
 
            // 模态遮罩层(游戏结束)
            Rectangle {

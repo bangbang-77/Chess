@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import "."
 
 //加载，启动动画
 ApplicationWindow {

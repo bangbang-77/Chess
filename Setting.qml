@@ -25,7 +25,7 @@ Item {
         Column {
             width: app.width
             height: app.height
-            spacing: 50 // 设置列中各元素之间的间距
+            spacing: 40 // 设置列中各元素之间的间距
 
             Button {
                 id: back
@@ -35,17 +35,17 @@ Item {
 
             Row {
                 width: parent.width
-                spacing: 20 // 设置行中各元素之间的间距
+                spacing: 10 // 设置行中各元素之间的间距
+                padding: 20 // 设置行内部边距
 
                 Text {
                     text: qsTr("声音：")
                     font.pixelSize: 20
-                    anchors.verticalCenter: parent.verticalCenter
                 }
 
                 Slider {
                     id: volumeSlider
-                    width: app.width*0.8
+                    width: app.width*0.65
                     from: 0
                     to: 1
                     value: 1
@@ -59,6 +59,7 @@ Item {
             Text {
                 text: qsTr("棋盘颜色：")
                 font.pixelSize: 20
+                x: 20 // 设置左边距
             }
 
             ButtonGroup{id:colorGroup}

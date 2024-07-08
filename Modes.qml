@@ -1,6 +1,5 @@
-import QtQuick 2.0
-
-import "."
+//用于管理和维护多个Mode实例
+import QtQuick
 
 Item {
     id: modes
