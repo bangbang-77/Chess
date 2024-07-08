@@ -173,18 +173,15 @@ Item {
     }
     property var backQueue: []
     function goBack() {
+        console.log("goack")
         if(backQueue.length > 0) {
             console.log('Popping from back queue') //¤
             var func = backQueue.pop()
-            var t = backQueue
-            backQueue = t
             func()
         }
     }
     function onBack(func) {
         console.log('Pushing to back queue') //¤
         backQueue.push(func)
-        var t = backQueue
-        backQueue = t
     }
 }

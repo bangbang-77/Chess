@@ -57,7 +57,8 @@ qt_add_qml_module(
   NetWorkWhite.qml
   QML_FILES
   Setting.qml
-  QML_FILES Developer.qml)
+  QML_FILES
+  Developer.qml)
 
 target_compile_features(appchess PRIVATE cxx_std_20)
 

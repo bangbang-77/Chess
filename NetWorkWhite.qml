@@ -89,7 +89,7 @@ Item {
                     z:2
                     placeholderText: "请输入对方的ipv4地址..."
                     anchors.centerIn: parent
-
+                    Component.onCompleted: _textField.forceActiveFocus()
                     // 添加一个按钮来触发获取文本的操作
                     Button {
                         id: okButton
@@ -107,6 +107,7 @@ Item {
                             waitLink.visible=false
                             boardchess.visible=true
                             grid.visible=true
+                            netChessBoard.reset()
                         }
                     }
                     Button {
@@ -456,7 +457,7 @@ Item {
                                 ip.sendMessage()
                                 _inToSend.num5=0
                                 manage.goBack()
-                                netChessBoard.reset()
+                               // netChessBoard.reset()
                             }
                         }
 

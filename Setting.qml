@@ -22,6 +22,12 @@ Item {
                 }
             }
         }
+        Button{
+            text: "help"
+            anchors.right: parent.right
+            anchors.top: back.top
+            onClicked: manage.modes.set('help')
+        }
         Column {
             width: app.width
             height: app.height
@@ -32,6 +38,7 @@ Item {
                 text: "Back"
                 onClicked: manage.goBack() // 返回上一页
             }
+
 
             Row {
                 width: parent.width
