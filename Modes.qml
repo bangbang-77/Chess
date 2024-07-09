@@ -15,7 +15,7 @@ Item {
 
         //添加一个mode到缓存中
         function add(mode) {
-            console.log('Adding',mode.name) //¤
+            console.log('Adding',mode.name)
             var t = m
             t[mode[key]] = mode
             m = t
@@ -70,5 +70,4 @@ Item {
             }
         }
     }
-
 }
