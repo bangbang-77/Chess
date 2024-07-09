@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
-import "."
+
 Item{
     id:board
 
@@ -102,7 +102,7 @@ Item{
                 console.log("可走位置：" + movelist[i]);
                 if(gridRep.itemAt(movelist[i]).children.length > 0) {
                     gridRep.itemAt(movelist[i]).children[1].visible = true
-                    gridRep.itemAt(movelist[i]).children[1].z = 999999
+                    gridRep.itemAt(movelist[i]).children[1].z = 1
                 }
             }
         }
@@ -138,14 +138,14 @@ Item{
         // 模态遮罩层(游戏结束)
         Rectangle {
             id: gameEndMask
-            anchors.fill: parent
+            width: parent.width
+            height: parent.height
             visible: false
-            z: -6
+            z: -2
             color: "transparent"
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
+            TapHandler {
+                onTapped: {
                     gameEnd.visible = true
                     // 跳转回主界面...
                     manage.goBack(); // 返回上一页
@@ -173,12 +173,11 @@ Item{
             id: promoteMask
             anchors.fill: parent
             visible: false
-            z: -6
+            z: -2
             color: "transparent"
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
+            TapHandler {
+                onTapped: {
                     promote.visible = true
                 }
             }
@@ -261,21 +260,21 @@ Item{
             function onWhiteWin() {
                 console.log("Received signal in QML, White Win");
                 gameEndMask.visible = true
-                gameEndMask.z = 999999
+                gameEndMask.z = 1
                 gameEnd.text = "White Win!"
                 gameEnd.visible = true
             }
             function onBlackWin() {
                 console.log("Received signal in QML, Black Win");
                 gameEndMask.visible = true
-                gameEndMask.z = 999999
+                gameEndMask.z = 1
                 gameEnd.text = "Black Win!"
                 gameEnd.visible = true
             }
             function onPromote() {
                 console.log("晋升弹窗提示")
                 promoteMask.visible = true
-                promoteMask.z = 999999
+                promoteMask.z = 1
                 promote.visible = true
             }
         }
@@ -300,7 +299,8 @@ Item{
                     source: model.pieceImg !== undefined ? model.pieceImg : ""
 
                     Text {
-                        z: 999
+                        visible: false
+                        z: 1
                         text: index
                     }
 

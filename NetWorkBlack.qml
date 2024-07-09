@@ -3,7 +3,6 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import MyNetWork 1.0
-import "."
 
 Item {
 
@@ -17,7 +16,6 @@ Item {
         width: app.width
         height: app.height
         visible: true
-        title: qsTr("hello, world")
 
         property int fromX: -1
         property int fromY: -1
@@ -29,12 +27,12 @@ Item {
             onReciveChanged: {
                 page.splitAndConvert(ip.recive)
                 console.log("ip4收到了  "+ip.recive)
-                if(_inToRecive.num2===-1)//第一次接收,拒绝连接
+                if(_inToRecive.num2===-1)//第一次接收,相同棋子，拒绝连接
                     { manage.goBack();netChessBoard.reset()}
-                else if(_inToRecive.num2===-2)//第一次接收，成功连接
+                else if(_inToRecive.num2===-2)//第一次接收，不同棋子，成功连接
                     {
                     console.log("已经被连接")
-                    waitLink.open()
+                    waitLink.close()
                     }
                 else{
                     if(_inToRecive.num5===1)//悔棋
@@ -45,8 +43,35 @@ Item {
                         { manage.goBack();netChessBoard.reset()}
                     else{//移动
                     netChessBoard.setWhitePlayer()
-                    netnetChessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
-                    netChessBoard.setBlackPlayer()
+                    netChessBoard.move(_inToRecive.num1,_inToRecive.num2,_inToRecive.num3,_inToRecive.num4)
+                        promote.close()
+                        promoteMask.visible = false
+                        netChessBoard.setBlackPlayer()//正常情况移动到这里完成，下面是升变的情况
+
+                        if(_inToRecive.num5>4)//小兵晋升
+                        {
+                            netChessBoard.setWhitePlayer()
+                            switch(_inToRecive.num5)
+                            {
+                            case 5:
+                                netChessBoard.setPromotion("queen")
+                                 break;
+                            case 6:
+                               netChessBoard.setPromotion("rook")
+                                 break;
+                            case 7:
+                                netChessBoard.setPromotion("knight")
+                                 break;
+                            case 8:
+                                netChessBoard.setPromotion("bishop")
+                                 break;
+                            }
+                            netChessBoard.changeType(_inToRecive.num3,_inToRecive.num4)
+                            promote.close();
+                            promoteMask.visible = false
+                            netChessBoard.setBlackPlayer()
+                        }
+
                          turnText.text = qsTr(netChessBoard.getTurn() + " turn")
                     }
                 }
@@ -70,9 +95,16 @@ Item {
                 anchors.centerIn: parent
                 text: qsTr("等待白方连接中...")
             }
+            Button {
+                id: cancelButton2
+                text: "cancel"
+                anchors.top:parent.top
+                anchors.left:parent.left
+                onClicked: {
+                    manage.goBack()
+                }
+            }
         }
-
-
         //输入对方ip
         Dialog{
             id: importIp
@@ -111,6 +143,8 @@ Item {
                             boardchess.visible=true
                             grid.visible=true
                             netChessBoard.reset()
+                            netChessBoard.setWaitPlayer()
+                            turnText.text = qsTr(netChessBoard.getTurn() + " turn")
                         }
                     }
                     Button {
@@ -186,7 +220,7 @@ Item {
                 console.log("可走位置：" + movelist[i]);
                 if(gridRep.itemAt(movelist[i]).children.length > 0) {
                     gridRep.itemAt(movelist[i]).children[1].visible = true
-                    gridRep.itemAt(movelist[i]).children[1].z = 999999
+                    gridRep.itemAt(movelist[i]).children[1].z = 1
                 }
             }
         }
@@ -212,165 +246,174 @@ Item {
             _inToRecive.num5=numbers[4];
         }
 
+        //显示轮次
+        Rectangle {
+            width: app.width/3
+            height: 50
+            anchors.horizontalCenter: parent.horizontalCenter
+            border.color: darkcolor
+            border.width: 3
+            radius: 25
+            Text {
+                id: turnText
+                color: darkcolor
+                anchors.centerIn: parent
+                text: qsTr(chessBoard.getTurn() + " turn")
+            }
+        }
+        // 模态遮罩层(游戏结束)
+        Rectangle {
+            id: gameEndMask
+            anchors.fill: parent
+            visible: false
+            z: -2
+            color: "transparent"
 
-           Rectangle {
-               width: 100
-               height: 50
-               anchors.horizontalCenter: parent.horizontalCenter
-               border.color: "lightgreen"
-               border.width: 3
-               Text {
-                   id: turnText
-                   color: "red"
-                   anchors.centerIn: parent
-                   text: qsTr(netChessBoard.getTurn() + " turn")
-               }
-           }
+            TapHandler {
+                onTapped: {
+                    gameEnd.visible = true
+                    // 跳转回主界面...
+                    manage.goBack(); // 返回上一页
+                    netChessBoard.reset();
+                    gameEnd.visible = false
+                }
+            }
 
-           // 模态遮罩层(游戏结束)
-           Rectangle {
-               id: gameEndMask
-               anchors.fill: parent
-               visible: false
-               z: -6
-               color: "transparent"
+            // 游戏结束弹窗
+            MessageDialog {
+                id: gameEnd
+                title: "游戏结束"
+                text: ""
+                onAccepted: {
+                    console.log("end弹窗被接受");
+                    // 跳转回主界面...
+                    manage.goBack(); // 返回上一页
+                    netChessBoard.reset();
+                }
+            }
+        }
+        // 模态遮罩层(兵升变提示)
+        Rectangle {
+            id: promoteMask
+            anchors.fill: parent
+            visible: false
+            z: -2
+            color: "transparent"
 
-               MouseArea {
-                   anchors.fill: parent
-                   onClicked: {
-                       gameEnd.visible = true
-                       // 跳转回主界面...
-                       manage.goBack(); // 返回上一页
-                       netChessBoard.reset();
-                       gameEnd.visible = false
-                   }
-               }
+            TapHandler{
+                onTapped: {
+                    promote.visible = true
+                }
+            }
 
-               // 游戏结束弹窗
-               MessageDialog {
-                   id: gameEnd
-                   title: "游戏结束"
-                   text: ""
-                   onAccepted: {
-                       console.log("end弹窗被接受");
-                       // 跳转回主界面...
-                       manage.goBack(); // 返回上一页
-                       netChessBoard.reset();
-                   }
-               }
-           }
+            // 晋升弹窗
+            Dialog {
+                id: promote
+                title: "兵升变"
+                width: 250
+                height: 350
+                modal: true
+                anchors.centerIn: parent
 
-           // 模态遮罩层(兵升变提示)
-           Rectangle {
-               id: promoteMask
-               anchors.fill: parent
-               visible: false
-               z: -6
-               color: "transparent"
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: qsTr("必须晋升（强制)")
+                    color: "red"
+                }
 
-               MouseArea {
-                   anchors.fill: parent
-                   onClicked: {
-                       promote.visible = true
-                   }
-               }
+                spacing: 5
 
-               // 晋升弹窗
-               Dialog {
-                   id: promote
-                   title: "兵升变"
-                   width: 250
-                   height: 350
-                   modal: true
-                   anchors.centerIn: parent
+                GridLayout {
+                    columns: 2
+                    rows: 2
+                    anchors.centerIn: parent
+                    columnSpacing: 5
+                    rowSpacing: 5
 
-                   Text {
-                       anchors.horizontalCenter: parent.horizontalCenter
-                       text: qsTr("必须晋升（强制)")
-                       color: "red"
-                   }
+                    Button {
+                        id: queen
+                        text: qsTr("晋升成后")
+                        onClicked: {
+                            // console.log("promote queen");
+                            netChessBoard.setPromotion("queen")
+                            netChessBoard.changeType(page.toX, page.toY)
+                            _inToSend.num5=5
+                            ip.sendMessage()
+                            _inToSend.num5=0
+                            promote.close();
+                            promoteMask.visible = false
 
-                   spacing: 5
+                        }
+                    }
+                    Button {
+                        id: rook
+                        text: qsTr("晋升成车")
+                        onClicked: {
+                            // console.log("promote rook");
+                            netChessBoard.setPromotion("rook")
+                            netChessBoard.changeType(page.toX, page.toY)
+                            _inToSend.num5=6
+                            ip.sendMessage()
+                            _inToSend.num5=0
+                            promote.close();
+                            promoteMask.visible = false
+                        }
+                    }
+                    Button {
+                        id: knight
+                        text: qsTr("晋升成马")
+                        onClicked: {
+                            // console.log("promote knight");
+                            netChessBoard.setPromotion("knight")
+                            netChessBoard.changeType(page.toX, page.toY)
+                            _inToSend.num5=7
+                            ip.sendMessage()
+                            _inToSend.num5=0
+                            promote.close();
+                            promoteMask.visible = false
+                        }
+                    }
+                    Button {
+                        id: bishop
+                        text: qsTr("晋升成象")
+                        onClicked: {
+                            // console.log("promote bishop");
+                            netChessBoard.setPromotion("bishop")
+                            netChessBoard.changeType(page.toX, page.toY)
+                            _inToSend.num5=8
+                            ip.sendMessage()
+                            _inToSend.num5=0
+                            promote.close();
+                            promoteMask.visible = false
+                        }
+                    }
+                }
+            }
+        }
 
-                   GridLayout {
-                       columns: 2
-                       rows: 2
-                       anchors.centerIn: parent
-                       columnSpacing: 5
-                       rowSpacing: 5
-
-                       Button {
-                           id: queen
-                           text: qsTr("晋升成后")
-                           onClicked: {
-                               // console.log("promote queen");
-                               netChessBoard.setPromotion("queen")
-                               netChessBoard.changeType(page.toX, page.toY)
-                               promote.close();
-                               promoteMask.visible = false
-                           }
-                       }
-                       Button {
-                           id: rook
-                           text: qsTr("晋升成车")
-                           onClicked: {
-                               // console.log("promote rook");
-                               netChessBoard.setPromotion("rook")
-                               netChessBoard.changeType(page.toX, page.toY)
-                               promote.close();
-                               promoteMask.visible = false
-                           }
-                       }
-                       Button {
-                           id: knight
-                           text: qsTr("晋升成马")
-                           onClicked: {
-                               // console.log("promote knight");
-                               netChessBoard.setPromotion("knight")
-                               netChessBoard.changeType(page.toX, page.toY)
-                               promote.close();
-                               promoteMask.visible = false
-                           }
-                       }
-                       Button {
-                           id: bishop
-                           text: qsTr("晋升成象")
-                           onClicked: {
-                               // console.log("promote bishop");
-                               netChessBoard.setPromotion("bishop")
-                               netChessBoard.changeType(page.toX, page.toY)
-                               promote.close();
-                               promoteMask.visible = false
-                           }
-                       }
-                   }
-               }
-           }
-
-
-           Connections {
-               target: netChessBoard
-               function onWhiteWin() {
-                   console.log("Received signal in QML, White Win");
-                   gameEndMask.visible = true
-                   gameEndMask.z = 999999
-                   gameEnd.text = "White Win!"
-                   gameEnd.visible = true
-               }
-               function onBlackWin() {
-                   console.log("Received signal in QML, Black Win");
-                   gameEndMask.visible = true
-                   gameEndMask.z = 999999
-                   gameEnd.text = "Black Win!"
-                   gameEnd.visible = true
-               }
-               function onPromote() {
-                   console.log("晋升弹窗提示")
-                   promoteMask.visible = true
-                   promoteMask.z = 999999
-                   promote.visible = true
-               }
-           }
+        Connections {
+            target: netChessBoard
+            function onWhiteWin() {
+                console.log("Received signal in QML, White Win");
+                gameEndMask.visible = true
+                gameEndMask.z = 1
+                gameEnd.text = "White Win!"
+                gameEnd.visible = true
+            }
+            function onBlackWin() {
+                console.log("Received signal in QML, Black Win");
+                gameEndMask.visible = true
+                gameEndMask.z = 1
+                gameEnd.text = "Black Win!"
+                gameEnd.visible = true
+            }
+            function onPromote() {
+                console.log("晋升弹窗提示")
+                promoteMask.visible = true
+                promoteMask.z = 1
+                promote.visible = true
+            }
+        }
 
         // 棋子
         Grid {
@@ -392,6 +435,7 @@ Item {
                     source: model.pieceImg !== undefined ? model.pieceImg : ""
 
                     Text {
+                        visible: false
                         z: 1
                         text: index
                     }
@@ -453,6 +497,7 @@ Item {
                         spacing: 55
 
                         ToolButton {
+                            id:back
                             text: qsTr("退出")
                             onClicked: {
                                 _inToSend.num5=3
@@ -483,10 +528,6 @@ Item {
                                 ip.sendMessage()
                                 _inToSend.num5=0
                             }
-                        }
-                        ToolButton {
-                            text: qsTr("帮助")
-                            onClicked: manage.modes.set('help')
                         }
                     }
             }

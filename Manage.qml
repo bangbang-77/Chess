@@ -1,5 +1,5 @@
+//页面控制中枢，掌管所有页面的跳转
 import QtQuick
-import "."
 
 Item {
     id: manage
@@ -172,16 +172,21 @@ Item {
         }
     }
     property var backQueue: []
+    //按书签返回
     function goBack() {
-        console.log("goack")
+        console.log("goback")
         if(backQueue.length > 0) {
             console.log('Popping from back queue') //¤
             var func = backQueue.pop()
             func()
         }
     }
+    //记住前一个页面，相当于翻页时的书签
     function onBack(func) {
         console.log('Pushing to back queue') //¤
         backQueue.push(func)
+    }
+    function gotoStart(){
+
     }
 }

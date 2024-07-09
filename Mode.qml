@@ -1,3 +1,4 @@
+//Mode是一个具体的模式，代表应用中的一个页面。
 import QtQuick
 import QtQuick.Controls
 
@@ -21,8 +22,8 @@ Item {
         }
     }
 
-    signal enter(var previousMode)
-    signal leave()
+    signal enter(var previousMode)//激活
+    signal leave()//停用
 
     function onEnterHandler(previousMode) {
         console.log("Entering " + name + " from " + previousMode.name)
