@@ -36,7 +36,7 @@ Item {
                     }
                 else{
                     if(_inToRecive.num5===1)//悔棋
-                        { netChessBoard.regretChess()}
+                        { netChessBoard.regretChess();netChessBoard.regretChess()}
                     else if(_inToRecive.num5===2)//重开
                         {netChessBoard.reset()}
                     else if(_inToRecive.num5===3)//退出
@@ -519,6 +519,7 @@ Item {
                             text: qsTr("撤回")
                             //撤回操作
                             onClicked:{
+                                netChessBoard.regretChess()
                                 netChessBoard.regretChess()
                                 _inToSend.num5=1
                                 ip.sendMessage()
